@@ -9,11 +9,6 @@ var client = redis.createClient(6379, '127.0.0.1', {
   detect_buffers: true
 });
 
-function respond(req, res, next) {
-  res.send('hello ' + req.params.name);
-  return next();
-}
-
 function getSeed(req, res, next) {
   client.lrange('seed', 0, -1, function(err, data) {
     if(err) return next(new restify.InternalError(err));
@@ -72,9 +67,6 @@ var server = restify.createServer({
 server.use(restify.queryParser());
 server.use(restify.bodyParser());
 server.pre(restify.pre.userAgentConnection());
-
-server.get('/hello/:name', respond);
-server.head('/hello/:name', respond);
 
 server.get('/seed', getSeed);
 server.post('/seed', postSeed);
