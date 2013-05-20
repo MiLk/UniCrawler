@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "request": "~2.16.6",
+    "underscore": "*",
     "hiredis": "*",
     "redis": "*",
     "async": "*"
