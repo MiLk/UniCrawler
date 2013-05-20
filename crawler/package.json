@@ -4,10 +4,7 @@
   "description": "Just follow the links of the Web !",
   "main": "index.js",
   "dependencies": {
-    "jsdom": "~0.5.6",
     "request": "~2.16.6",
-    "underscore": "*",
-    "cheerio": "*",
     "hiredis": "*",
     "redis": "*",
     "async": "*"

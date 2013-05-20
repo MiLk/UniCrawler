@@ -2,7 +2,6 @@ var util = require('util')
   , fs = require('fs')
   , _ = require('underscore')._
   , async = require('async')
-  , cheerio = require('cheerio')
   , request = require('request')
   , redis = require('redis')
   , crypto = require('crypto')
@@ -23,18 +22,35 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
     util.error('Scrapp error: ' + error);
     return callback();
   } else {
-    if(response.statusCode == 200) { 
-      events.emit('url_visited',url);          
-      // Parse the raw HTML into exploitable format
-      var $ = cheerio.load(body, {
-          ignoreWhitespace: true,
-          xmlMode: false,
-          lowerCaseTags: false
+    if(response.statusCode == 200) {
+      // Emit event in order to mark the url as visited
+      events.emit('url_visited',url);
+
+      // Extract all the links from the body
+      var links = body.match(/<a([^>]*)>(.+?)<\/a>/igm);
+
+      // Extract url and title from all links
+      links = _.map(links, function(link) {
+        var url = link.match(/href="(.+?)"/i)
+          , title = link.match(/<a(?:[^>]*)>(.+?)<\/a>/i);
+        url = (url) ? url[1] : '';
+        title = (title) ? title[1] : '-';
+        return {
+          title: title,
+          url: url
+        };
       });
-      // For each link found on the page
-      $('a').each(function(){
-        events.emit('link_found', url, $(this).attr('href'));
+
+      // Reject link with no url
+      links = _.reject(links, function(link) {
+        return (link.url == '');
       });
+
+      // Emit one event for each link
+      _.each(links, function(link) {
+        events.emit('link_found', url, link);
+      });
+
       return callback();
     } else {
       util.error('Scrapp error: request statusCode: ' + response.statusCode);
@@ -94,23 +110,13 @@ client.on('error', function(error) {
   util.error('Redis error: ' + error);
 });
 
+/*
+ *  link: { title, url }
+ */
 events.on('link_found', function(source, link) {
   if(!link) return;
-  if(link.match(/^\/wiki\//)) {
-    events.emit('internal_link_found', source, link);
-  } else 
-  if(link.match(/^\/\/([a-z]+)\.wikipedia\.org\//)) {
-    // Other language links
-  } else
-  if(!link.match(/^#/)) {
-    // External links
-  }
-  else {
-    // Links we don't care
-    // - #
-    return;
-  }
-  events.emit('good_link_found', source, link);
+  util.log('Link found: ' + link.title + ' - ' + link.url);
+  //events.emit('good_link_found', source, link);
 });
 
 // Add all link to the working list
