@@ -1,6 +1,7 @@
 var util = require('util')
   , fs = require('fs')
   , _ = require('underscore')._
+  , async = require('async')
   , cheerio = require('cheerio')
   , request = require('request')
   , redis = require('redis')
@@ -74,9 +75,19 @@ function doScrapp() {
 
 // When redis is connected
 client.on('ready', function(){
-  // Push the seed
-  client.rpush('working','http://fr.wikipedia.org');
-  setTimeout(doScrapp, 0);
+  client.lrange('seed', 0, -1, function(err, results) {
+    if(err) util.error('Get seed: ' +err);
+    async.each(results, function(url,cb) {
+      // Push the seed
+      client.rpush('working',url, function(err) {
+        cb(err);
+      });
+    }, function(err) {
+      if(err) util.error('Initialize seed: '+err);
+      util.log('Seed initialized');
+      setTimeout(doScrapp, 0);
+    });
+  });
 });
 
 client.on('error', function(error) {
