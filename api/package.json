@@ -1,0 +1,20 @@
+{
+  "name": "api",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "async": "~0.2.8",
+    "hiredis": "~0.1.15",
+    "redis": "~0.8.3",
+    "restify": "~2.5.0",
+    "underscore": "~1.4.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": ""
+  },
+  "repository": "git://github.com/MiLk/ic05-crawler.git",
+  "author": "Emilien Kenler <hello@emilienkenler.com>",
+  "license": "BSD"
+}

@@ -14,45 +14,51 @@ var client = redis.createClient(6379, '127.0.0.1', {
   detect_buffers: true
 });
 
+var handleWebPage = function(error, response, body, options) { // Get the response of the request
+  var url = options.url
+    , callback = options.callback
+    ;
+  if(error) {
+    util.error('Scrapp error: ' + error);
+    return callback();
+  } else {
+    if(response.statusCode == 200) { 
+      events.emit('url_visited',url);          
+      // Parse the raw HTML into exploitable format
+      var $ = cheerio.load(body, {
+          ignoreWhitespace: true,
+          xmlMode: false,
+          lowerCaseTags: false
+      });
+      // For each link found on the page
+      $('a').each(function(){
+        events.emit('link_found', url, $(this).attr('href'));
+      });
+      return callback();
+    } else {
+      util.error('Scrapp error: request statusCode: ' + response.statusCode);
+      return callback();
+    }
+  }
+}
+
 // Scrapp a website
 function scrapp(url, callback) {
   client.hget('encoded_url', url, function(err, reply) {
     if(reply) { // If we have already scrapped this page
       util.log('Scrapp: ' + url + ' already scrapped');
       return callback();
-    }
-    else {
+    } else {
       // Send a HTTP GET request
-      request(
-        { method: 'GET'
-        , jar: false
-        , uri: url
-        }
-      , function(error, response, body) { // Get the response of the request
-          if(error) {
-            util.error('Scrapp error: ' + error);
-            return callback();
-          } else {
-            if(response.statusCode == 200) { 
-              events.emit('url_visited',url);          
-              // Parse the raw HTML into exploitable format
-              var $ = cheerio.load(body, {
-                  ignoreWhitespace: true,
-                  xmlMode: false,
-                  lowerCaseTags: false
+      request({ method: 'GET'
+              , jar: false
+              , uri: url
+              }, function(error, response, body) {
+                handleWebPage(error, response, body, {
+                  url: url,
+                  callback: callback
+                });
               });
-              // For each link found on the page
-              $('a').each(function(){
-                events.emit('link_found', url, $(this).attr('href'));
-              });
-              return callback();
-            } else {
-              util.error('Scrapp error: request statusCode: ' + response.statusCode);
-              return callback();
-            }
-          }
-        }
-      );
     }
   });
 }

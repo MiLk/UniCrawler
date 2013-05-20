@@ -15,9 +15,9 @@
   "devDependencies": {},
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": ""
   },
-  "repository": "",
-  "author": "",
+  "repository": "git://github.com/MiLk/ic05-crawler.git",
+  "author": "Emilien Kenler <hello@emilienkenler.com>",
   "license": "BSD"
 }
