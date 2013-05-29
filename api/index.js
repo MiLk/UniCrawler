@@ -10,10 +10,12 @@ var client = redis.createClient(6379, '127.0.0.1', {
 });
 
 function postStart(req, res, next) {
+  client.publish('actions','start');
   res.send(200, {});
 }
 
 function postStop(req, res, next) {
+  client.publish('actions','stop');
   res.send(200, {});
 }
 
