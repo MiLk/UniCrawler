@@ -89,17 +89,75 @@ server.use(restify.queryParser());
 server.use(restify.bodyParser());
 server.pre(restify.pre.userAgentConnection());
 
+/**
+  * @method POST
+  * @uri    /start
+  *
+  * Start the crawling process
+  */
 server.post('/start', postStart);
+/**
+  * @method POST
+  * @uri    /stop
+  *
+  * Stop the crawling process
+  */
 server.post('/stop', postStop);
+/**
+  * @method POST
+  * @uri    /reset
+  *
+  * Reset all the datas and the current settings
+  */
 server.post('/reset', postReset);
 
+/**
+  * @method GET
+  * @uri    /seed
+  *
+  * Return the seed list from current settings
+  */
 server.get('/seed', getSeed);
+/**
+  * @method POST
+  * @uri    /seed
+  * @params url   : Url to add as seed
+  *
+  * Add a seed in seed list
+  */
 server.post('/seed', postSeed);
 
+/**
+  * @method GET
+  * @uri    /filter
+  *
+  * Return the filter list from current settings
+  */
 server.get('/filter', getFilter);
+/**
+  * @method POST
+  * @uri    /filter
+  * @params keyword : Keyword that must be present in scrapped pages
+  * @params target  : Search the keyword in one of the following target: Page Title, URL, Body
+  *
+  * Add a filter
+  */
 server.post('/filter', postFilter);
 
+/**
+  * @method GET
+  * @uri    /depth
+  *
+  * Return the max depth from current settings
+  */
 server.get('/depth', getDepth);
+/**
+  * @method POST
+  * @uri    /depth
+  * @params depth  : New depth
+  *
+  * Change the max depth where the crawling should stop
+  */
 server.post('/depth', postDepth);
 
 server.listen(8080, function() {
