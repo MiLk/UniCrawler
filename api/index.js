@@ -23,6 +23,7 @@ function postReset(req, res, next) {
   var Multi = client.multi()
   if(type == 0 || type == 2) {
     Multi
+      .del('depth')
       .del('filter_body')
       .del('filter_title')
       .del('filter_url')
@@ -95,11 +96,17 @@ function postFilter(req, res, next) {
 
 
 function getDepth(req, res, next) {
-  res.send(200, {});
+  client.get('depth', function(err, data) {
+    if(err) return next(new restify.InternalError(err));
+    res.send(200,data);
+  });
 }
 
 function postDepth(req, res, next) {
-  res.send(200, {});
+  var depth = parseInt(req.params.depth);
+  if(!depth || depth < 1) depth = 1;
+  res.send(201, {});
+  client.set('depth',depth);
 }
 
 var server = restify.createServer({
