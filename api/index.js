@@ -18,7 +18,27 @@ function postStop(req, res, next) {
 }
 
 function postReset(req, res, next) {
-  res.send(200, {});
+  var type = parseInt(req.params.type);
+  if(!type || type < 0 || type > 2) type = 0;
+  var Multi = client.multi()
+  if(type == 0 || type == 2) {
+    Multi
+      .del('filter_body')
+      .del('filter_title')
+      .del('filter_url')
+      .del('seed')
+      ;
+  }
+  if(type == 0 || type == 1) {
+    Multi
+      .del('encoded_url')
+      .del('visited')
+      ;
+  }
+  Multi.exec(function(err, replies) {
+    if(err) return next(new restify.InternalError(err));
+    res.send(204, {});
+  });
 }
 
 function getSeed(req, res, next) {
@@ -106,6 +126,10 @@ server.post('/stop', postStop);
 /**
   * @method POST
   * @uri    /reset
+  * @params type   : Integer to specify data to delete
+  *                  - 0 (default): Crawling datas and settings
+  *                  - 1: Only crawling datas
+  *                  - 2: Settings
   *
   * Reset all the datas and the current settings
   */
@@ -160,7 +184,7 @@ server.get('/depth', getDepth);
   */
 server.post('/depth', postDepth);
 
-server.listen(8080, function() {
+server.listen(8081, function() {
   console.log('%s listening at %s', server.name, server.url);
 });
 
