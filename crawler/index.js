@@ -7,12 +7,17 @@ var util = require('util')
   , crypto = require('crypto')
   , EventEmitter = require('events').EventEmitter
   , events = new EventEmitter()
+  , is_running = false
   ;
 
 // Connect to the redis database
 var client = redis.createClient(6379, '127.0.0.1', {
   detect_buffers: true
 });
+var subscriber = redis.createClient(6379, '127.0.0.1', {
+  detect_buffers: true
+});
+
 
 var handleWebPage = function(error, response, body, options) { // Get the response of the request
   var url = options.url
@@ -84,13 +89,36 @@ function doScrapp() {
   client.blpop('working', 0, function(err, reply) {
     if(err) util.error('doScrapp error: ' + err);
     else scrapp(reply[1], function() {
-      setTimeout(doScrapp, 0);
+      if(is_running)
+        setTimeout(doScrapp, 0);
     });
   });
 }
 
+subscriber.on('message', function(channel, message) {
+  switch(channel) {
+    case 'actions': {
+      events.emit(message);
+    }; break;
+    default:
+      util.log('Received a message from channel '+channel+': '+message);
+  }
+});
+
+subscriber.on('error', function(error) {
+  util.error('Redis error: ' + error);
+});
+
 // When redis is connected
 client.on('ready', function(){
+  subscriber.subscribe('actions');
+});
+
+client.on('error', function(error) {
+  util.error('Redis error: ' + error);
+});
+
+events.on('start', function() {
   client.lrange('seed', 0, -1, function(err, results) {
     if(err) util.error('Get seed: ' +err);
     async.each(results, function(url,cb) {
@@ -101,13 +129,18 @@ client.on('ready', function(){
     }, function(err) {
       if(err) util.error('Initialize seed: '+err);
       util.log('Seed initialized');
+      is_running = true;
       setTimeout(doScrapp, 0);
     });
   });
 });
 
-client.on('error', function(error) {
-  util.error('Redis error: ' + error);
+events.on('stop', function() {
+  is_running = false;
+  client.del('working', function(err) {
+    if(err) util.error('Stop: ' +err);
+    util.log('Stop crawling');
+  });
 });
 
 /*
@@ -122,9 +155,11 @@ events.on('link_found', function(source, link) {
 // Add all link to the working list
 // Link will be scrapped
 events.on('internal_link_found', function(source,link) {
-  client.rpush('working','http://fr.wikipedia.org'+link, function(err, reply) {
-    if(err) util.error('link_found error: ' + err);
-  });
+  if(is_running) {
+    client.rpush('working','http://fr.wikipedia.org'+link, function(err, reply) {
+      if(err) util.error('link_found error: ' + err);
+    });
+  }
 });
 
 // Store the link between source and destination
@@ -146,4 +181,4 @@ events.on('url_visited', function(url) {
     .exec(function(err, replies) {
       if(err) util.error('Url visited error: ' + err);
     });
-})
+});
