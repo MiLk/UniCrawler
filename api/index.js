@@ -33,6 +33,12 @@ function postReset(req, res, next) {
       ;
   }
   if(type == 0 || type == 1) {
+    client.keys('links_*', function(err, links) {
+      if(err) return next(new restify.InternalError(err));
+      _.each(links, function(link) {
+        client.del(link);
+      });
+    });
     Multi
       .del('encoded_url')
       .del('visited')
