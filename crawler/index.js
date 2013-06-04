@@ -1,5 +1,7 @@
 var util = require('util')
   , fs = require('fs')
+  , urlparse = require('url').parse
+  , resolve = require('url').resolve
   , _ = require('underscore')._
   , async = require('async')
   , request = require('request')
@@ -8,6 +10,7 @@ var util = require('util')
   , EventEmitter = require('events').EventEmitter
   , events = new EventEmitter()
   , is_running = false
+  , config = {}
   ;
 
 // Connect to the redis database
@@ -95,6 +98,33 @@ function doScrapp() {
   });
 }
 
+function loadConfig(config_callback) {
+  async.parallel([
+    function(callback) {
+      client.smembers('filter_url', function(err, data) {
+        callback(err,data);
+      });
+    },
+    function(callback) {
+      client.smembers('filter_title', function(err, data) {
+        callback(err,data);
+      });
+    },
+    function(callback) {
+      client.smembers('filter_body', function(err, data) {
+        callback(err,data);
+      });
+    }
+  ], function(err, results) {
+    if(err) config_callback(err,null);
+    else config_callback(null, {
+      url: results[0],
+      title: results[1],
+      body: results[2],
+    });
+  });
+};
+
 subscriber.on('message', function(channel, message) {
   switch(channel) {
     case 'actions': {
@@ -111,6 +141,7 @@ subscriber.on('error', function(error) {
 
 // When redis is connected
 client.on('ready', function(){
+  util.log('Redis connected');
   subscriber.subscribe('actions');
 });
 
@@ -119,18 +150,22 @@ client.on('error', function(error) {
 });
 
 events.on('start', function() {
-  client.lrange('seed', 0, -1, function(err, results) {
-    if(err) util.error('Get seed: ' +err);
-    async.each(results, function(url,cb) {
-      // Push the seed
-      client.rpush('working',url, function(err) {
-        cb(err);
+  loadConfig(function(err, results) {
+    if(err) util.error('Load Config: ' +err);
+    config = results;
+    // Load seed
+    client.lrange('seed', 0, -1, function(err, results) {
+      if(err) util.error('Get seed: ' +err);
+      async.each(results, function(url,cb) {
+        // Push the seed into working list
+        client.rpush('working',url, function(err) {
+          cb(err);
+        });
+      }, function(err) {
+        if(err) util.error('Initialize seed: '+err);
+        is_running = true;
+        setTimeout(doScrapp, 0);
       });
-    }, function(err) {
-      if(err) util.error('Initialize seed: '+err);
-      util.log('Seed initialized');
-      is_running = true;
-      setTimeout(doScrapp, 0);
     });
   });
 });
@@ -149,15 +184,18 @@ events.on('stop', function() {
 events.on('link_found', function(source, link) {
   if(!link) return;
   util.log('Link found: ' + link.title + ' - ' + link.url);
-  //events.emit('good_link_found', source, link);
+  events.emit('good_link_found', source, link);
+  events.emit('link_to_follow', source, link);
 });
 
 // Add all link to the working list
 // Link will be scrapped
-events.on('internal_link_found', function(source,link) {
+events.on('link_to_follow', function(source, link) {
   if(is_running) {
-    client.rpush('working','http://fr.wikipedia.org'+link, function(err, reply) {
-      if(err) util.error('link_found error: ' + err);
+    var dst = resolve(source, link.url);
+    util.log(source + ' -> ' + link.url + ' : ' + dst);
+    client.rpush('working',dst, function(err, reply) {
+      if(err) util.error('link_to_follow error: ' + err);
     });
   }
 });
