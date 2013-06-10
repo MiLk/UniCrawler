@@ -51,12 +51,28 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
 
       // Reject link with no url
       links = _.reject(links, function(link) {
-        return (link.url == '');
+        return ( link.url == ''
+              || link.url.match(/^mailto/)
+              );
       });
 
       // Emit one event for each link
       _.each(links, function(link) {
-        events.emit('link_found', url, link);
+        if(config.url.length > 0) {
+          var found_url_keyword = _.reduce(config.url, function(memo, keyword) {
+            if(link.url.toLowerCase().search(keyword) != -1) {
+              memo.push(keyword);
+              return memo;
+            }
+          }, []);
+        }
+          util.log(util.inspect(found_url_keyword,true,4,true));
+        if ( config.url.length == 0
+          || (config.url.length > 0 && found_url_keyword && found_url_keyword.length > 0)
+          ) {
+          // Send source url and link found
+          events.emit('link_found', url, link);
+        }
       });
 
       return callback();
@@ -164,6 +180,7 @@ events.on('start', function() {
       }, function(err) {
         if(err) util.error('Initialize seed: '+err);
         is_running = true;
+        util.log('Start crawling');
         setTimeout(doScrapp, 0);
       });
     });
@@ -183,7 +200,7 @@ events.on('stop', function() {
  */
 events.on('link_found', function(source, link) {
   if(!link) return;
-  util.log('Link found: ' + link.title + ' - ' + link.url);
+  //util.log('Link found: ' + link.title + ' - ' + link.url);
   events.emit('good_link_found', source, link);
   events.emit('link_to_follow', source, link);
 });
@@ -193,7 +210,7 @@ events.on('link_found', function(source, link) {
 events.on('link_to_follow', function(source, link) {
   if(is_running) {
     var dst = resolve(source, link.url);
-    util.log(source + ' -> ' + link.url + ' : ' + dst);
+    //util.log(source + ' -> ' + link.url + ' : ' + dst);
     client.rpush('working',dst, function(err, reply) {
       if(err) util.error('link_to_follow error: ' + err);
     });
