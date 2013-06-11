@@ -10,16 +10,19 @@ var client = redis.createClient(6379, '127.0.0.1', {
 });
 
 function postStart(req, res, next) {
+  res.set('Access-Control-Allow-Origin', '*');
   client.publish('actions','start');
   res.send(200, {});
 }
 
 function postStop(req, res, next) {
+  res.set('Access-Control-Allow-Origin', '*');
   client.publish('actions','stop');
   res.send(200, {});
 }
 
 function postReset(req, res, next) {
+  res.set('Access-Control-Allow-Origin', '*');
   var type = parseInt(req.params.type);
   if(!type || type < 0 || type > 2) type = 0;
   var Multi = client.multi()
@@ -51,6 +54,7 @@ function postReset(req, res, next) {
 }
 
 function getSeed(req, res, next) {
+  res.set('Access-Control-Allow-Origin', '*');
   client.lrange('seed', 0, -1, function(err, data) {
     if(err) return next(new restify.InternalError(err));
     res.send(200,data);
@@ -58,6 +62,7 @@ function getSeed(req, res, next) {
 }
 
 function postSeed(req, res, next) {
+  res.set('Access-Control-Allow-Origin', '*');
   var url = req.params.url;
   if(!url) return next(new restify.MissingParameterError('You must specify an url to add.'));
   res.send(201, {url: url});
@@ -65,6 +70,7 @@ function postSeed(req, res, next) {
 }
 
 function getFilter(req, res, next) {
+  res.set('Access-Control-Allow-Origin', '*');
   async.parallel([
     function(callback) {
       client.smembers('filter_url', function(err, data) {
@@ -92,6 +98,7 @@ function getFilter(req, res, next) {
 }
 
 function postFilter(req, res, next) {
+  res.set('Access-Control-Allow-Origin', '*');
   var keyword = req.params.keyword
     , target = req.params.target
     ;
@@ -104,6 +111,7 @@ function postFilter(req, res, next) {
 
 
 function getDepth(req, res, next) {
+  res.set('Access-Control-Allow-Origin', '*');
   client.get('depth', function(err, data) {
     if(err) return next(new restify.InternalError(err));
     res.send(200,data);
@@ -111,6 +119,7 @@ function getDepth(req, res, next) {
 }
 
 function postDepth(req, res, next) {
+  res.set('Access-Control-Allow-Origin', '*');
   var depth = parseInt(req.params.depth);
   if(!depth || depth < 1) depth = 1;
   res.send(201, {});
