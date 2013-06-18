@@ -34,46 +34,60 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
       // Emit event in order to mark the url as visited
       events.emit('url_visited',url);
 
-      // Extract all the links from the body
-      var links = body.match(/<a([^>]*)>(.+?)<\/a>/igm);
+      // Body filter
+      if(config.body.length > 0) {
+        var found_body_keyword = _.reduce(config.body, function(memo, keyword) {
+          if(body.search(new RegExp(keyword,"i")) != -1) {
+            memo.push(keyword);
+            return memo;
+          }
+        }, []);
+      }
+      if ( config.body.length == 0
+        || (config.body.length > 0 && found_body_keyword && found_body_keyword.length > 0)
+        ) {
 
-      // Extract url and title from all links
-      links = _.map(links, function(link) {
-        var url = link.match(/href="(.+?)"/i)
-          , title = link.match(/<a(?:[^>]*)>(.+?)<\/a>/i);
-        url = (url) ? url[1] : '';
-        title = (title) ? title[1] : '-';
-        return {
-          title: title,
-          url: url
-        };
-      });
+        // Extract all the links from the body
+        var links = body.match(/<a([^>]*)>(.+?)<\/a>/igm);
 
-      // Reject link with no url
-      links = _.reject(links, function(link) {
-        return ( link.url == ''
-              || link.url.match(/^mailto/)
-              );
-      });
+        // Extract url and title from all links
+        links = _.map(links, function(link) {
+          var url = link.match(/href="(.+?)"/i)
+            , title = link.match(/<a(?:[^>]*)>(.+?)<\/a>/i);
+          url = (url) ? url[1] : '';
+          title = (title) ? title[1] : '-';
+          return {
+            title: title,
+            url: url
+          };
+        });
 
-      // Emit one event for each link
-      _.each(links, function(link) {
-        // URL filter
-        if(config.url.length > 0) {
-          var found_url_keyword = _.reduce(config.url, function(memo, keyword) {
-            if(link.url.toLowerCase().search(keyword) != -1) {
-              memo.push(keyword);
-              return memo;
-            }
-          }, []);
-        }
-        if ( config.url.length == 0
-          || (config.url.length > 0 && found_url_keyword && found_url_keyword.length > 0)
-          ) {
-          // Send source url and link found
-          events.emit('link_found', url, link);
-        }
-      });
+        // Reject link with no url
+        links = _.reject(links, function(link) {
+          return ( link.url == ''
+                || link.url.match(/^mailto/)
+                );
+        });
+
+        // Emit one event for each link
+        _.each(links, function(link) {
+          // URL filter
+          if(config.url.length > 0) {
+            var found_url_keyword = _.reduce(config.url, function(memo, keyword) {
+              if(link.url.toLowerCase().search(keyword) != -1) {
+                memo.push(keyword);
+                return memo;
+              }
+            }, []);
+          }
+          if ( config.url.length == 0
+            || (config.url.length > 0 && found_url_keyword && found_url_keyword.length > 0)
+            ) {
+            // Send source url and link found
+            events.emit('link_found', url, link);
+          }
+        });
+      }
 
       return callback();
     } else {
@@ -87,7 +101,7 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
 function scrapp(url, callback) {
   client.hget('encoded_url', url, function(err, reply) {
     if(reply) { // If we have already scrapped this page
-      util.log('Scrapp: ' + url + ' already scrapped');
+      util.error('Scrapp: ' + url + ' already scrapped');
       return callback();
     } else {
       util.log('Scrapp: ' + url + '');
