@@ -35,7 +35,9 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
       events.emit('url_visited',url);
 
       // Body filter
+      // TODO: accept seed
       if(config.body.length > 0) {
+        // Get matching keyword
         var found_body_keyword = _.reduce(config.body, function(memo, keyword) {
           if(body.search(new RegExp(keyword,"i")) != -1) {
             memo.push(keyword);
@@ -47,46 +49,66 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
         || (config.body.length > 0 && found_body_keyword && found_body_keyword.length > 0)
         ) {
 
-        // Extract all the links from the body
-        var links = body.match(/<a([^>]*)>(.+?)<\/a>/igm);
-
-        // Extract url and title from all links
-        links = _.map(links, function(link) {
-          var url = link.match(/href="(.+?)"/i)
-            , title = link.match(/<a(?:[^>]*)>(.+?)<\/a>/i);
-          url = (url) ? url[1] : '';
-          title = (title) ? title[1] : '-';
-          return {
-            title: title,
-            url: url
-          };
-        });
-
-        // Reject link with no url
-        links = _.reject(links, function(link) {
-          return ( link.url == ''
-                || link.url.match(/^mailto/)
-                );
-        });
-
-        // Emit one event for each link
-        _.each(links, function(link) {
-          // URL filter
-          if(config.url.length > 0) {
-            var found_url_keyword = _.reduce(config.url, function(memo, keyword) {
-              if(link.url.toLowerCase().search(keyword) != -1) {
+        // Title filter
+        if(config.title.length > 0) {
+          var title = body.match(/<title>(.*)<\/title>/i)[1];
+          if(title) {
+            // Get matching keyword
+            var found_title_keyword = _.reduce(config.title, function(memo, keyword) {
+              if(title.search(new RegExp(keyword,"i")) != -1) {
                 memo.push(keyword);
                 return memo;
               }
             }, []);
           }
-          if ( config.url.length == 0
-            || (config.url.length > 0 && found_url_keyword && found_url_keyword.length > 0)
-            ) {
-            // Send source url and link found
-            events.emit('link_found', url, link);
-          }
-        });
+        }
+        // TODO: accept seed
+        if ( config.title.length == 0
+          || (config.title.length > 0 && found_title_keyword && found_title_keyword.length > 0)
+          ) {
+
+          // Extract all the links from the body
+          var links = body.match(/<a([^>]*)>(.+?)<\/a>/igm);
+
+          // Extract url and title from all links
+          links = _.map(links, function(link) {
+            var url = link.match(/href="(.+?)"/i)
+              , title = link.match(/<a(?:[^>]*)>(.+?)<\/a>/i);
+            url = (url) ? url[1] : '';
+            title = (title) ? title[1] : '-';
+            return {
+              title: title,
+              url: url
+            };
+          });
+
+          // Reject link with no url
+          links = _.reject(links, function(link) {
+            return ( link.url == ''
+                  || link.url.match(/^mailto/)
+                  );
+          });
+
+          // Emit one event for each link
+          _.each(links, function(link) {
+            // URL filter
+            if(config.url.length > 0) {
+              // Get matching keyword
+              var found_url_keyword = _.reduce(config.url, function(memo, keyword) {
+                if(link.url.toLowerCase().search(keyword) != -1) {
+                  memo.push(keyword);
+                  return memo;
+                }
+              }, []);
+            }
+            if ( config.url.length == 0
+              || (config.url.length > 0 && found_url_keyword && found_url_keyword.length > 0)
+              ) {
+              // Send source url and link found
+              events.emit('link_found', url, link);
+            }
+          });
+        }
       }
 
       return callback();
