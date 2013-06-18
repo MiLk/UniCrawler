@@ -68,7 +68,7 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
           || depth == 0
           || (config.title.length > 0 && found_title_keyword && found_title_keyword.length > 0)
           ) {
-          if(config.depth > depth) {
+          if(config.depth >= depth) {
             // Extract all the links from the body
             var links = body.match(/<a([^>]*)>(.+?)<\/a>/igm);
 
@@ -106,8 +106,18 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
               if ( config.url.length == 0
                 || (config.url.length > 0 && found_url_keyword && found_url_keyword.length > 0)
                 ) {
-                // Send source url and link found
-                events.emit('link_found', url, link, (depth + 1));
+                if(config.depth == depth) {
+                  client.hget('encoded_url', url, function(err, reply) {
+                    // Node already seen
+                    if(reply) {
+                      // Send source url and link found
+                      events.emit('link_found', url, link, (depth + 1));
+                    }
+                  });
+                } else {
+                  // Send source url and link found
+                  events.emit('link_found', url, link, (depth + 1));
+                }
               }
             });
           }
