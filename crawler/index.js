@@ -58,6 +58,7 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
 
       // Emit one event for each link
       _.each(links, function(link) {
+        // URL filter
         if(config.url.length > 0) {
           var found_url_keyword = _.reduce(config.url, function(memo, keyword) {
             if(link.url.toLowerCase().search(keyword) != -1) {
@@ -66,7 +67,6 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
             }
           }, []);
         }
-          util.log(util.inspect(found_url_keyword,true,4,true));
         if ( config.url.length == 0
           || (config.url.length > 0 && found_url_keyword && found_url_keyword.length > 0)
           ) {
@@ -90,6 +90,7 @@ function scrapp(url, callback) {
       util.log('Scrapp: ' + url + ' already scrapped');
       return callback();
     } else {
+      util.log('Scrapp: ' + url + '');
       // Send a HTTP GET request
       request({ method: 'GET'
               , jar: false
