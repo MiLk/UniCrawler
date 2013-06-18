@@ -25,6 +25,7 @@ var subscriber = redis.createClient(6379, '127.0.0.1', {
 var handleWebPage = function(error, response, body, options) { // Get the response of the request
   var url = options.url
     , callback = options.callback
+    , depth = options.depth
     ;
   if(error) {
     util.error('Scrapp error: ' + error);
@@ -35,7 +36,6 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
       events.emit('url_visited',url);
 
       // Body filter
-      // TODO: accept seed
       if(config.body.length > 0) {
         // Get matching keyword
         var found_body_keyword = _.reduce(config.body, function(memo, keyword) {
@@ -46,13 +46,15 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
         }, []);
       }
       if ( config.body.length == 0
+        || depth == 0
         || (config.body.length > 0 && found_body_keyword && found_body_keyword.length > 0)
         ) {
 
         // Title filter
         if(config.title.length > 0) {
-          var title = body.match(/<title>(.*)<\/title>/i)[1];
-          if(title) {
+          var title = body.match(/<title>(.*)<\/title>/i);
+          if(title && title[1]) {
+            title = title[1];
             // Get matching keyword
             var found_title_keyword = _.reduce(config.title, function(memo, keyword) {
               if(title.search(new RegExp(keyword,"i")) != -1) {
@@ -62,55 +64,55 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
             }, []);
           }
         }
-        // TODO: accept seed
         if ( config.title.length == 0
+          || depth == 0
           || (config.title.length > 0 && found_title_keyword && found_title_keyword.length > 0)
           ) {
+          if(config.depth > depth) {
+            // Extract all the links from the body
+            var links = body.match(/<a([^>]*)>(.+?)<\/a>/igm);
 
-          // Extract all the links from the body
-          var links = body.match(/<a([^>]*)>(.+?)<\/a>/igm);
+            // Extract url and title from all links
+            links = _.map(links, function(link) {
+              var url = link.match(/href="(.+?)"/i)
+                , title = link.match(/<a(?:[^>]*)>(.+?)<\/a>/i);
+              url = (url) ? url[1] : '';
+              title = (title) ? title[1] : '-';
+              return {
+                title: title,
+                url: url
+              };
+            });
 
-          // Extract url and title from all links
-          links = _.map(links, function(link) {
-            var url = link.match(/href="(.+?)"/i)
-              , title = link.match(/<a(?:[^>]*)>(.+?)<\/a>/i);
-            url = (url) ? url[1] : '';
-            title = (title) ? title[1] : '-';
-            return {
-              title: title,
-              url: url
-            };
-          });
+            // Reject link with no url
+            links = _.reject(links, function(link) {
+              return ( link.url == ''
+                    || link.url.match(/^mailto/)
+                    );
+            });
 
-          // Reject link with no url
-          links = _.reject(links, function(link) {
-            return ( link.url == ''
-                  || link.url.match(/^mailto/)
-                  );
-          });
-
-          // Emit one event for each link
-          _.each(links, function(link) {
-            // URL filter
-            if(config.url.length > 0) {
-              // Get matching keyword
-              var found_url_keyword = _.reduce(config.url, function(memo, keyword) {
-                if(link.url.toLowerCase().search(keyword) != -1) {
-                  memo.push(keyword);
-                  return memo;
-                }
-              }, []);
-            }
-            if ( config.url.length == 0
-              || (config.url.length > 0 && found_url_keyword && found_url_keyword.length > 0)
-              ) {
-              // Send source url and link found
-              events.emit('link_found', url, link);
-            }
-          });
+            // Emit one event for each link
+            _.each(links, function(link) {
+              // URL filter
+              if(config.url.length > 0) {
+                // Get matching keyword
+                var found_url_keyword = _.reduce(config.url, function(memo, keyword) {
+                  if(link.url.toLowerCase().search(keyword) != -1) {
+                    memo.push(keyword);
+                    return memo;
+                  }
+                }, []);
+              }
+              if ( config.url.length == 0
+                || (config.url.length > 0 && found_url_keyword && found_url_keyword.length > 0)
+                ) {
+                // Send source url and link found
+                events.emit('link_found', url, link, (depth + 1));
+              }
+            });
+          }
         }
       }
-
       return callback();
     } else {
       util.error('Scrapp error: request statusCode: ' + response.statusCode);
@@ -120,7 +122,7 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
 }
 
 // Scrapp a website
-function scrapp(url, callback) {
+function scrapp(url, depth, callback) {
   client.hget('encoded_url', url, function(err, reply) {
     if(reply) { // If we have already scrapped this page
       util.error('Scrapp: ' + url + ' already scrapped');
@@ -134,6 +136,7 @@ function scrapp(url, callback) {
               }, function(error, response, body) {
                 handleWebPage(error, response, body, {
                   url: url,
+                  depth: depth,
                   callback: callback
                 });
               });
@@ -142,9 +145,19 @@ function scrapp(url, callback) {
 }
 
 function doScrapp() {
-  client.blpop('working', 0, function(err, reply) {
+  var multi = client.multi();
+  multi.blpop('working', 0);
+  multi.blpop('working', 0);
+  multi.exec(function(err, replies) {
+    if(!replies[0]) {
+      is_running = false;
+      util.log('Stop crawling');
+      return;
+    }
+    var url = replies[0].substr(8)
+      , depth = parseInt(replies[1].substr(8));
     if(err) util.error('doScrapp error: ' + err);
-    else scrapp(reply[1], function() {
+    else scrapp(url, depth, function() {
       if(is_running)
         setTimeout(doScrapp, 0);
     });
@@ -167,6 +180,11 @@ function loadConfig(config_callback) {
       client.smembers('filter_body', function(err, data) {
         callback(err,data);
       });
+    },
+    function(callback) {
+      client.get('depth', function(err, data) {
+        callback(err,data);
+      });
     }
   ], function(err, results) {
     if(err) config_callback(err,null);
@@ -174,6 +192,7 @@ function loadConfig(config_callback) {
       url: results[0],
       title: results[1],
       body: results[2],
+      depth: results[3],
     });
   });
 };
@@ -211,7 +230,7 @@ events.on('start', function() {
       if(err) util.error('Get seed: ' +err);
       async.each(results, function(url,cb) {
         // Push the seed into working list
-        client.rpush('working',url, function(err) {
+        client.rpush('working',url, 0, function(err) {
           cb(err);
         });
       }, function(err) {
@@ -235,20 +254,20 @@ events.on('stop', function() {
 /*
  *  link: { title, url }
  */
-events.on('link_found', function(source, link) {
+events.on('link_found', function(source, link, depth) {
   if(!link) return;
   //util.log('Link found: ' + link.title + ' - ' + link.url);
   events.emit('good_link_found', source, link);
-  events.emit('link_to_follow', source, link);
+  events.emit('link_to_follow', source, link, depth);
 });
 
 // Add all link to the working list
 // Link will be scrapped
-events.on('link_to_follow', function(source, link) {
+events.on('link_to_follow', function(source, link, depth) {
   if(is_running) {
     var dst = resolve(source, link.url);
     //util.log(source + ' -> ' + link.url + ' : ' + dst);
-    client.rpush('working',dst, function(err, reply) {
+    client.rpush('working',dst, depth, function(err, reply) {
       if(err) util.error('link_to_follow error: ' + err);
     });
   }
