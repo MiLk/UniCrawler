@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>UniCrawler</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+  <link href="css/bootstrap-responsive.min.css" rel="stylesheet" media="screen">
+</head>
+<body>
+  <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <button type="button" class="btn btn-navbar" data-toggle="collapse"
+        data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="brand" href="#">UniCrawler</a>
+        <div class="nav-collapse collapse">
+          <ul class="nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="https://github.com/MiLk/ic05-crawler">Sources</a></li>
+            <li><a href="http://www.emilienkenler.com/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+  </div>
+  <div class="container" style="padding-top: 60px;">
+    <div class="row">
+      <div class="span4">
+        <div class="well">
+          <h4>Seed</h4> <br>
+          <div class="input-append" id="seed">
+            <input type="text" class="span3">
+            <button class="btn" type="button"><i class="icon-plus"></i></button>
+          </div>
+          <ul id="seed-list">
+          </ul>
+        </div>
+      </div>
+      
+      <div class="span4">
+        <div class="well">
+          <h4>Contrôle</h4><br> 
+          <div class="btn-group">
+            <button class="btn btn-success" id="start"><i class="icon-play
+            icon-white"></i>&nbsp;&nbsp;Start</button>
+            <button class="btn btn-danger" id="stop"><i class="icon-stop
+            icon-white"></i>&nbsp;&nbsp;Stop</button>
+            <button class="btn btn-warning" id="reset"><i class="icon-trash
+            icon-white"></i>&nbsp;&nbsp;Reset</button>    
+          </div>
+          <br>
+          <br />
+          <strong>Réinitialiser les données:</strong>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="reset_data" checked="checked"> <br>
+          <em>En cochant cette case, les données récoltées par le crawler seront effacées (noeuds, liens, mots-clés).</em><br />
+          <br />
+          <strong>Réinitialiser la configuration:</strong>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="reset_setting"> <br>
+          <em>En cochant cette case, tous les paramètres seront effacés (seeds, filtres, profondeur, ...).</em>          
+        </div>
+      </div>
+        
+      <div class="span4">
+        <div class="well">
+          <h4>Réglages</h4><br>
+          <form class="form-horizontal">
+            <span class="help-inline">Profondeur: </span><br>
+            <div class="control-group">
+              <div class="input-append" id="profondeur"> 
+                <input class="span3" type="text">
+                <button class="btn" type="button" ><i class="icon-arrow-down"></i></button>
+              </div>
+            </div>
+
+            <h4>Filtres</h4>
+            <div class="control-group" id="url">
+              <label for="id_url">Adresse</label>
+              <div class="input-append">
+                <input class="span3" id="id_url" type="text">
+                <button class="btn" type="button"><i class="icon-plus"></i></button>
+              </div>
+              <span class="help-inline">Seuls les pages dont l'URL contient au moins un des mots clés suivants seront traitées.</span>
+            </div>
+            <ul id="url-list" class="well">
+            </ul>
+            
+            <div class="control-group" id="title">
+              <label for="id_title">Titre</label>
+              <div class="input-append">
+                <input class="span3" id="id_title" type="text">
+               <button class="btn" type="button"><i class="icon-plus"></i></button>
+              </div>
+              <span class="help-inline">Seuls les pages dont le titre contient au moins un des mots clés suivants seront traitées.</span>
+            </div>
+            <ul id="title-list" class="well">
+            </ul>
+            
+            <div class="control-group" id="body">
+              <label for="id_body">Contenu</label>
+              <div class="input-append">
+               <input class="span3" id="id_body" type="text">
+               <button class="btn" type="button"><i class="icon-plus"></i></button>
+             </div>
+             <span class="help-inline">Seuls les pages dont le contenu contient au moins un des mots clés suivants seront traitées.</span>
+            </div>
+            <ul id="body-list" class="well">
+            </ul>
+          </form>
+        </div>
+      </div>
+      
+      </div>
+      
+  <script src="http://code.jquery.com/jquery.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/main.js"></script>
+  
+</body>
+
+</html>
