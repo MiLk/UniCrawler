@@ -14,7 +14,6 @@ $(document).ready(function(){
       }
     }
   }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-
   //pour les profodeur
   $.ajax({
     type: 'GET',
@@ -23,10 +22,9 @@ $(document).ready(function(){
     dataType: 'json',
     timeout: 0,
     success: function(data) {
-        $('#profondeur input').val(data.depth); 
+        $('#profondeur input').val(data.depth);
     }
   }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-  
   $.ajax({
     type: 'GET',
     url: api_url + '/filter',
@@ -45,10 +43,8 @@ $(document).ready(function(){
       }
     }
   }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-
-
-// ici on récupere l id du button
-   $('#seed button').on ("click", function() {
+  // ici on récupere l id du button
+  $('#seed button').on ("click", function() {
     var val = $('#seed input').val(); // on recupere la valeur du champs
     $.ajax({
       type: 'POST',
@@ -61,11 +57,9 @@ $(document).ready(function(){
         $('#seed-list').append('<li>'+data.url+'</li>');
       }
     }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-   
-   });
-
-// ici fonction pour start
-   $('#start').on ("click", function() {
+  });
+  // ici fonction pour start
+  $('#start').on ("click", function() {
     $.ajax({
       type: 'POST',
       url: api_url + '/start',
@@ -75,11 +69,9 @@ $(document).ready(function(){
       success: function(data) {
       }
     }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-   
-   });
-   
-   // ici fonction pour stop
-   $('#stop').on ("click", function() {
+  });
+  // ici fonction pour stop
+  $('#stop').on ("click", function() {
     $.ajax({
       type: 'POST',
       url: api_url + '/stop',
@@ -89,19 +81,16 @@ $(document).ready(function(){
       success: function(data) {
       }
     }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-   
-   });
-   
-    // ici fonction pour reset
-   $('#reset').on ("click", function() {
+  });
+  // ici fonction pour reset
+  $('#reset').on ("click", function() {
     var reset_data =$('#reset_data').is(':checked');
     var setting =$('#reset_setting').is(':checked');
     var type;
     if(reset_data && setting) type = 0;
-    else if(reset_data && !setting) type = 2;
-    else if(!reset_data && setting) type = 1;
+    else if(reset_data && !setting) type = 1;
+    else if(!reset_data && setting) type = 2;
     else return;
-    
     $.ajax({
       type: 'POST',
       url: api_url + '/reset',
@@ -110,22 +99,19 @@ $(document).ready(function(){
       dataType: 'json',
       timeout: 0,
       success: function(data) {
-        $('input').val('');   
-        if(setting) 
+        if(setting)
         {
+          $('input').val('');
           $('#seed-list').html('');
           $('#url-list').html('');
           $('#title-list').html('');
           $('#body-list').html('');
         }
-        
       }
     }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-   
-   });
-   
+  });
   // ici on récupere l id du button profodeur
-   $('#profondeur button').on ("click", function() {
+  $('#profondeur button').on ("click", function() {
     var val = $('#profondeur input').val(); // on recupere la valeur du champs
     $.ajax({
       type: 'POST',
@@ -138,11 +124,9 @@ $(document).ready(function(){
         $('#profondeur input').val(val);
       }
     }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-   
-   }); 
-   
-    // ici on récupere l id de l'url
-   $('#url button').on ("click", function() {
+  });
+  // ici on récupere l id de l'url
+  $('#url button').on ("click", function() {
     var val = $('#url input').val(); // on recupere la valeur du champs
     $.ajax({
       type: 'POST',
@@ -156,11 +140,9 @@ $(document).ready(function(){
         $('#url input').val('');
       }
     }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-   
-   }); 
-   
-    // ici on récupere l id title
-   $('#title button').on ("click", function() {
+  });
+  // ici on récupere l id title
+  $('#title button').on ("click", function() {
     var val = $('#title input').val(); // on recupere la valeur du champs
     $.ajax({
       type: 'POST',
@@ -174,11 +156,9 @@ $(document).ready(function(){
       $('#title input').val('');
       }
     }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-   
-   }); 
-   
-   // ici on récupere l id body
-   $('#body button').on ("click", function() {
+  });
+  // ici on récupere l id body
+  $('#body button').on ("click", function() {
     var val = $('#body input').val(); // on recupere la valeur du champs
     $.ajax({
       type: 'POST',
@@ -192,8 +172,5 @@ $(document).ready(function(){
         $('#body input').val('');
       }
     }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-   
-   }); 
-   
-   
+  });
 });
