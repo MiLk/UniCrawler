@@ -193,7 +193,7 @@ function loadConfig(config_callback) {
     },
     function(callback) {
       client.get('depth', function(err, data) {
-        callback(err,data);
+        callback(err,data || 1);
       });
     }
   ], function(err, results) {
@@ -288,7 +288,7 @@ events.on('link_to_follow', function(source, link, depth) {
 events.on('good_link_found', function(source,link) {
   client.hget('encoded_url', source, function(err, encrypted_url) {
     if(err) util.error('good_link_found error: ' + err);
-    else client.rpush('links_'+encrypted_url,link);
+    else client.rpush('links_'+encrypted_url,link.url);
   });
 });
 

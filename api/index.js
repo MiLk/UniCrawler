@@ -114,7 +114,7 @@ function getDepth(req, res, next) {
   res.set('Access-Control-Allow-Origin', '*');
   client.get('depth', function(err, data) {
     if(err) return next(new restify.InternalError(err));
-    res.send(200,data);
+    res.send(200,{depth: data || 1});
   });
 }
 
