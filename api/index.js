@@ -9,6 +9,18 @@ var client = redis.createClient(6379, '127.0.0.1', {
   detect_buffers: true
 });
 
+function getState(req, res, next) {
+  res.set('Access-Control-Allow-Origin', '*');
+  var Multi = client.multi()
+  Multi
+    .llen('working')
+    .llen('visited')
+    .exec(function(err, replies) {
+      if(err) return next(new restify.InternalError(err));
+      res.send(200, {working: (replies[0]/2), visited: replies[1]});
+    });
+}
+
 function postStart(req, res, next) {
   res.set('Access-Control-Allow-Origin', '*');
   client.publish('actions','start');
@@ -132,6 +144,14 @@ var server = restify.createServer({
 server.use(restify.queryParser());
 server.use(restify.bodyParser());
 server.pre(restify.pre.userAgentConnection());
+
+/**
+  * @method GET
+  * @uri    /state
+  *
+  * Get the current state
+  */
+server.get('/state', getState);
 
 /**
   * @method POST
