@@ -147,7 +147,7 @@ function scrapp(url, depth, callback) {
       util.error('Scrapp: ' + url + ' already scrapped');
       return callback();
     } else {
-      util.log('Scrapp: ' + url + '');
+      util.log('Scrapp: ' + url + ' ('+depth+')');
       // Send a HTTP GET request
       request({ method: 'GET'
               , jar: false
@@ -309,7 +309,7 @@ events.on('link_to_follow', function(source, link, depth) {
 events.on('good_link_found', function(source,link) {
   client.hget('encoded_url', source, function(err, encrypted_url) {
     if(err) util.error('good_link_found error: ' + err);
-    else client.rpush('links_'+encrypted_url,link.url);
+    else client.rpush('links_'+encrypted_url,resolve(source, link.url));
   });
 });
 
