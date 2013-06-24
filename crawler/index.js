@@ -31,6 +31,14 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
     util.error('Scrapp error: ' + error);
     return callback();
   } else {
+    if( response.headers['content-type'] &&
+        ( !response.headers['content-type'].match(/html/)
+        || !response.headers['content-type'].match(/text/))
+      ) {
+      util.error('Binary content-type');
+      return callback();
+    }
+
     if(response.statusCode == 200) {
       // Emit event in order to mark the url as visited
       events.emit('url_visited',url);
@@ -84,10 +92,11 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
               };
             });
 
-            // Reject link with no url
+            // Reject link with no url or binary datas
             links = _.reject(links, function(link) {
               return ( link.url == ''
                     || link.url.match(/^mailto/)
+                    || link.url.match(/\.(pdf|epub|gz|zip|rar|rpm)$/)
                     );
             });
 
@@ -155,22 +164,30 @@ function scrapp(url, depth, callback) {
 }
 
 function doScrapp() {
-  var multi = client.multi();
-  multi.blpop('working', 0);
-  multi.blpop('working', 0);
-  multi.exec(function(err, replies) {
-    if(!replies[0]) {
+  client.exists('working', function(err, reply) {
+    if(reply != 0) {
+      var multi = client.multi();
+      multi.blpop('working', 0);
+      multi.blpop('working', 0);
+      multi.exec(function(err, replies) {
+        if(!replies[0]) {
+          is_running = false;
+          util.log('Stop crawling');
+          return;
+        }
+        var url = replies[0].substr(8)
+          , depth = parseInt(replies[1].substr(8));
+        if(err) util.error('doScrapp error: ' + err);
+        else scrapp(url, depth, function() {
+          if(is_running)
+            setTimeout(doScrapp, 0);
+        });
+      });
+    } else {
       is_running = false;
       util.log('Stop crawling');
       return;
     }
-    var url = replies[0].substr(8)
-      , depth = parseInt(replies[1].substr(8));
-    if(err) util.error('doScrapp error: ' + err);
-    else scrapp(url, depth, function() {
-      if(is_running)
-        setTimeout(doScrapp, 0);
-    });
   });
 }
 
@@ -232,6 +249,10 @@ client.on('error', function(error) {
 });
 
 events.on('start', function() {
+  if(is_running) {
+    util.error('Crawler already running');
+    return;
+  }
   loadConfig(function(err, results) {
     if(err) util.error('Load Config: ' +err);
     config = results;
