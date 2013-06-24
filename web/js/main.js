@@ -2,6 +2,20 @@
 //permet d'attendre la fin du chargement de la page avant d'exécuter la page
 $(document).ready(function(){
   var api_url = 'http://ic05-api.emilienkenler.com';
+  (function poll(){
+    $.ajax({
+      type: 'GET',
+      url: api_url + '/state',
+      crossDomain: true,
+      dataType: 'json',
+      timeout: 30000,
+      success: function(data){
+        $("#working").text(data.working);
+        $("#visited").text(data.visited);
+      },
+      complete: poll
+    }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
+  })();
   $.ajax({
     type: 'GET',
     url: api_url + '/seed',
