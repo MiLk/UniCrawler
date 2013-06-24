@@ -1,8 +1,10 @@
-var restify = require('restify')
+var express = require('express')
+  , server = express()
   , redis = require('redis')
   , util = require('util')
   , _ = require('underscore')._
   , async = require('async')
+  , read = require('./read')
   ;
 
 var client = redis.createClient(6379, '127.0.0.1', {
@@ -16,7 +18,7 @@ function getState(req, res, next) {
     .llen('working')
     .llen('visited')
     .exec(function(err, replies) {
-      if(err) return next(new restify.InternalError(err));
+      if(err) return next(err);
       res.send(200, {working: (replies[0]/2), visited: replies[1]});
     });
 }
@@ -35,7 +37,7 @@ function postStop(req, res, next) {
 
 function postReset(req, res, next) {
   res.set('Access-Control-Allow-Origin', '*');
-  var type = parseInt(req.params.type);
+  var type = parseInt(req.body.type);
   if(!type || type < 0 || type > 2) type = 0;
   var Multi = client.multi()
   if(type == 0 || type == 2) {
@@ -49,7 +51,7 @@ function postReset(req, res, next) {
   }
   if(type == 0 || type == 1) {
     client.keys('links_*', function(err, links) {
-      if(err) return next(new restify.InternalError(err));
+      if(err) return next(err);
       _.each(links, function(link) {
         client.del(link);
       });
@@ -60,7 +62,7 @@ function postReset(req, res, next) {
       ;
   }
   Multi.exec(function(err, replies) {
-    if(err) return next(new restify.InternalError(err));
+    if(err) return next(err);
     res.send(204, {});
   });
 }
@@ -68,15 +70,15 @@ function postReset(req, res, next) {
 function getSeed(req, res, next) {
   res.set('Access-Control-Allow-Origin', '*');
   client.lrange('seed', 0, -1, function(err, data) {
-    if(err) return next(new restify.InternalError(err));
+    if(err) return next(err);
     res.send(200,data);
   });
 }
 
 function postSeed(req, res, next) {
   res.set('Access-Control-Allow-Origin', '*');
-  var url = req.params.url;
-  if(!url) return next(new restify.MissingParameterError('You must specify an url to add.'));
+  var url = req.body.url;
+  if(!url) return next('You must specify an url to add.');
   res.send(201, {url: url});
   client.rpush('seed',url);
 }
@@ -100,7 +102,7 @@ function getFilter(req, res, next) {
       });
     }
   ], function(err, results) {
-    if(err) return next(new restify.InternalError(err));
+    if(err) return next(err);
     res.send(200,{
       url: results[0],
       title: results[1],
@@ -111,12 +113,12 @@ function getFilter(req, res, next) {
 
 function postFilter(req, res, next) {
   res.set('Access-Control-Allow-Origin', '*');
-  var keyword = req.params.keyword
-    , target = req.params.target
+  var keyword = req.body.keyword
+    , target = req.body.target
     ;
-  if(!keyword) return next(new restify.MissingParameterError('You must specify a keyword for the filter.'));
-  if(!target) return next(new restify.MissingParameterError('You must specify a target for the filter.'));
-  if(-1 == _.indexOf(['title','url','body'],target)) return next(new restify.MissingParameterError('You must specify a valid target for the filter.'));
+  if(!keyword) return next('You must specify a keyword for the filter.');
+  if(!target) return next('You must specify a target for the filter.');
+  if(-1 == _.indexOf(['title','url','body'],target)) return next('You must specify a valid target for the filter.');
   res.send(201,{ keyword: keyword, target: target });
   client.sadd('filter_'+target,keyword);
 }
@@ -125,25 +127,33 @@ function postFilter(req, res, next) {
 function getDepth(req, res, next) {
   res.set('Access-Control-Allow-Origin', '*');
   client.get('depth', function(err, data) {
-    if(err) return next(new restify.InternalError(err));
+    if(err) return next(err);
     res.send(200,{depth: data || 1});
   });
 }
 
 function postDepth(req, res, next) {
   res.set('Access-Control-Allow-Origin', '*');
-  var depth = parseInt(req.params.depth);
+  var depth = parseInt(req.body.depth);
   if(!depth || depth < 1) depth = 1;
   res.send(201, {});
   client.set('depth',depth);
 }
 
-var server = restify.createServer({
-  name: 'CrawlerAPI'
-});
-server.use(restify.queryParser());
-server.use(restify.bodyParser());
-server.pre(restify.pre.userAgentConnection());
+function getCsv(req, res, next) {
+  res.set('Access-Control-Allow-Origin', '*');
+  read.read(client, function() {
+    res.sendfile(__dirname + '/output.csv');
+  });
+}
+
+function errorHandler(err, req, res, next) {
+  res.send(500,err);
+}
+
+server.use(express.bodyParser());
+server.use(express.methodOverride());
+server.use(errorHandler);
 
 /**
   * @method GET
@@ -228,8 +238,10 @@ server.get('/depth', getDepth);
   */
 server.post('/depth', postDepth);
 
+server.get('/output.csv', getCsv);
+
 server.listen(8081, function() {
-  console.log('%s listening at %s', server.name, server.url);
+  console.log('Express listening at 0.0.0.0:%d',8081);
 });
 
 client.on('ready', function(){
