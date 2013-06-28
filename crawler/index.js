@@ -58,6 +58,10 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
         || (config.body.length > 0 && found_body_keyword && found_body_keyword.length > 0)
         ) {
 
+        if(config.body.length > 0 && found_body_keyword && found_body_keyword.length > 0) {
+          events.emit('keywords_found', url, found_body_keyword);
+        }
+
         // Title filter
         if(config.title.length > 0) {
           var title = body.match(/<title>(.*)<\/title>/i);
@@ -76,6 +80,11 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
           || depth == 0
           || (config.title.length > 0 && found_title_keyword && found_title_keyword.length > 0)
           ) {
+
+          if(config.title.length > 0 && found_title_keyword && found_title_keyword.length > 0) {
+            events.emit('keywords_found', url, found_title_keyword);
+          }
+
           if(config.depth >= depth) {
             // Extract all the links from the body
             var links = body.match(/<a([^>]*)>(.+?)<\/a>/igm);
@@ -115,6 +124,11 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
               if ( config.url.length == 0
                 || (config.url.length > 0 && found_url_keyword && found_url_keyword.length > 0)
                 ) {
+
+                if(config.url.length > 0 && found_url_keyword && found_url_keyword.length > 0) {
+                  events.emit('keywords_found', url, found_url_keyword);
+                }
+
                 if(config.depth == depth) {
                   client.hget('encoded_url', url, function(err, reply) {
                     // Node already seen
@@ -323,4 +337,15 @@ events.on('url_visited', function(url) {
     .exec(function(err, replies) {
       if(err) util.error('Url visited error: ' + err);
     });
+});
+
+events.on('keywords_found', function(url, found_keyword) {
+  client.hget('encoded_url', url, function(err, encrypted_url) {
+    if(err) util.error('keywords_found error: ' + err);
+    else {
+      _.each(found_keyword, function(keyword) {
+        client.sadd('keywords_'+encrypted_url,keyword);
+      });
+    }
+  });
 });
