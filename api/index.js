@@ -56,6 +56,12 @@ function postReset(req, res, next) {
         client.del(link);
       });
     });
+    client.keys('keywords_*', function(err, links) {
+      if(err) return next(err);
+      _.each(links, function(link) {
+        client.del(link);
+      });
+    });
     Multi
       .del('encoded_url')
       .del('visited')
