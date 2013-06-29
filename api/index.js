@@ -153,6 +153,13 @@ function getCsv(req, res, next) {
   });
 }
 
+function getKeywords(req, res, next) {
+  res.set('Access-Control-Allow-Origin', '*');
+  read.keywords(client, function() {
+    res.sendfile(__dirname + '/output.csv');
+  });
+}
+
 function errorHandler(err, req, res, next) {
   res.send(500,err);
 }
@@ -245,6 +252,7 @@ server.get('/depth', getDepth);
 server.post('/depth', postDepth);
 
 server.get('/output.csv', getCsv);
+server.get('/keywords.csv', getKeywords);
 
 server.listen(8081, function() {
   console.log('Express listening at 0.0.0.0:%d',8081);
