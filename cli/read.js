@@ -7,7 +7,7 @@ var client = redis.createClient(6379, '127.0.0.1', {
 });
 
 client.on('ready', function() {
-  read.read(client, function() {
+  read.keywords(client, function() {
     process.exit(0);
   });
 });
