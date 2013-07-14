@@ -195,7 +195,7 @@ server.get('/output.csv', routes.getCsv);
 server.get('/keywords.csv', routes.getKeywords);
 
 swagger.configureSwaggerPaths("", "/api-docs", "");
-swagger.configure("http://localhost:8081", "0.1");
+swagger.configure("http://ic05-api.emilienkenler.com", "0.1");
 
 var docs_handler = express.static(__dirname + '/docs/');
 server.get(/^\/docs(\/.*)?$/, function(req, res, next) {
