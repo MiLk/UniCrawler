@@ -8,7 +8,8 @@
     "hiredis": "~0.1.15",
     "redis": "~0.8.3",
     "underscore": "~1.4.4",
-    "express": "~3.2.6"
+    "express": "~3.2.6",
+    "swagger-node-express": "~1.2.3"
   },
   "devDependencies": {},
   "scripts": {

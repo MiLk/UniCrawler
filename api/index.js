@@ -1,164 +1,10 @@
 var express = require('express')
   , server = express()
-  , redis = require('redis')
-  , util = require('util')
-  , _ = require('underscore')._
-  , async = require('async')
-  , read = require('./read')
+  , swagger = require("swagger-node-express")
+  , models = require('./models')
+  , routes = require('./routes')
+  , url = require('url')
   ;
-
-var client = redis.createClient(6379, '127.0.0.1', {
-  detect_buffers: true
-});
-
-function getState(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
-  var Multi = client.multi()
-  Multi
-    .llen('working')
-    .llen('visited')
-    .exec(function(err, replies) {
-      if(err) return next(err);
-      res.send(200, {working: (replies[0]/2), visited: replies[1]});
-    });
-}
-
-function postStart(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
-  client.publish('actions','start');
-  res.send(200, {});
-}
-
-function postStop(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
-  client.publish('actions','stop');
-  res.send(200, {});
-}
-
-function postReset(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
-  var type = parseInt(req.body.type);
-  if(!type || type < 0 || type > 2) type = 0;
-  var Multi = client.multi()
-  if(type == 0 || type == 2) {
-    Multi
-      .del('depth')
-      .del('filter_body')
-      .del('filter_title')
-      .del('filter_url')
-      .del('seed')
-      ;
-  }
-  if(type == 0 || type == 1) {
-    client.keys('links_*', function(err, links) {
-      if(err) return next(err);
-      _.each(links, function(link) {
-        client.del(link);
-      });
-    });
-    client.keys('keywords_*', function(err, links) {
-      if(err) return next(err);
-      _.each(links, function(link) {
-        client.del(link);
-      });
-    });
-    Multi
-      .del('encoded_url')
-      .del('visited')
-      ;
-  }
-  Multi.exec(function(err, replies) {
-    if(err) return next(err);
-    res.send(204, {});
-  });
-}
-
-function getSeed(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
-  client.lrange('seed', 0, -1, function(err, data) {
-    if(err) return next(err);
-    res.send(200,data);
-  });
-}
-
-function postSeed(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
-  var url = req.body.url;
-  if(!url) return next('You must specify an url to add.');
-  res.send(201, {url: url});
-  client.rpush('seed',url);
-}
-
-function getFilter(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
-  async.parallel([
-    function(callback) {
-      client.smembers('filter_url', function(err, data) {
-        callback(err,data);
-      });
-    },
-    function(callback) {
-      client.smembers('filter_title', function(err, data) {
-        callback(err,data);
-      });
-    },
-    function(callback) {
-      client.smembers('filter_body', function(err, data) {
-        callback(err,data);
-      });
-    }
-  ], function(err, results) {
-    if(err) return next(err);
-    res.send(200,{
-      url: results[0],
-      title: results[1],
-      body: results[2],
-    });
-  });
-}
-
-function postFilter(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
-  var keyword = req.body.keyword
-    , target = req.body.target
-    ;
-  if(!keyword) return next('You must specify a keyword for the filter.');
-  if(!target) return next('You must specify a target for the filter.');
-  if(-1 == _.indexOf(['title','url','body'],target)) return next('You must specify a valid target for the filter.');
-  res.send(201,{ keyword: keyword, target: target });
-  client.sadd('filter_'+target,keyword);
-}
-
-
-function getDepth(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
-  client.get('depth', function(err, data) {
-    if(err) return next(err);
-    res.send(200,{depth: data || 1});
-  });
-}
-
-function postDepth(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
-  var depth = parseInt(req.body.depth);
-  if(!depth || depth < 1) depth = 1;
-  res.send(201, {});
-  client.set('depth',depth);
-}
-
-function getCsv(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
-  read.read(client, function() {
-    res.sendfile(__dirname + '/output.csv');
-  });
-}
-
-function getKeywords(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
-  read.keywords(client, function() {
-    res.sendfile(__dirname + '/output.csv');
-  });
-}
 
 function errorHandler(err, req, res, next) {
   res.send(500,err);
@@ -168,96 +14,201 @@ server.use(express.bodyParser());
 server.use(express.methodOverride());
 server.use(errorHandler);
 
-/**
-  * @method GET
-  * @uri    /state
-  *
-  * Get the current state
-  */
-server.get('/state', getState);
+swagger.setAppHandler(server);
+swagger.addModels(models);
 
-/**
-  * @method POST
-  * @uri    /start
-  *
-  * Start the crawling process
-  */
-server.post('/start', postStart);
-/**
-  * @method POST
-  * @uri    /stop
-  *
-  * Stop the crawling process
-  */
-server.post('/stop', postStop);
-/**
-  * @method POST
-  * @uri    /reset
-  * @params type   : Integer to specify data to delete
-  *                  - 0 (default): Crawling datas and settings
-  *                  - 1: Only crawling datas
-  *                  - 2: Settings
-  *
-  * Reset all the datas and the current settings
-  */
-server.post('/reset', postReset);
+swagger.addGet({
+  'spec': {
+    "description": "Get the current state",
+    "summary": "Get the current state",
+    "path": "/state",
+    "method": "GET",
+    "params": [],
+    "responseClass": "State",
+    "errorResponses": [],
+    "nickname": "getState"
+  },
+  'action': routes.getState
+});
 
-/**
-  * @method GET
-  * @uri    /seed
-  *
-  * Return the seed list from current settings
-  */
-server.get('/seed', getSeed);
-/**
-  * @method POST
-  * @uri    /seed
-  * @params url   : Url to add as seed
-  *
-  * Add a seed in seed list
-  */
-server.post('/seed', postSeed);
+swagger.addPost({
+  'spec': {
+    "description": "Start the crawling process",
+    "summary": "Start the crawling process",
+    "path": "/start",
+    "method": "POST",
+    "params": [],
+    "errorResponses": [],
+    "nickname": "postStart"
+  },
+  'action': routes.postStart
+});
+swagger.addPost({
+  'spec': {
+    "description": "Stop the crawling process",
+    "summary": "Stop the crawling process",
+    "path": "/stop",
+    "method": "POST",
+    "params": [],
+    "errorResponses": [],
+    "nickname": "postStop"
+  },
+  'action': routes.postStop
+});
+swagger.addPost({
+  'spec': {
+    "description": "Reset all the datas and the current settings",
+    "summary": "Reset all the datas and the current settings",
+    "notes": "With type 0, crawling datas and settings are deleted. <br />With type 1, only crawling datas.<br />With type 2, only settings.",
+    "path": "/reset",
+    "method": "POST",
+    "params": [{
+      "paramType": "body",
+      "name": "type",
+      "description": "Integer to specify data to delete",
+      "dataType": "int",
+      "defaultValue": 0,
+      "allowableValues": {
+        "valueType": "RANGE",
+        "min": 0,
+        "max": 2
+      }
+    }],
+    "errorResponses": [],
+    "nickname": "postReset"
+  },
+  'action': routes.postReset
+});
 
-/**
-  * @method GET
-  * @uri    /filter
-  *
-  * Return the filter list from current settings
-  */
-server.get('/filter', getFilter);
-/**
-  * @method POST
-  * @uri    /filter
-  * @params keyword : Keyword that must be present in scrapped pages
-  * @params target  : Search the keyword in one of the following target: Page Title, URL, Body
-  *
-  * Add a filter
-  */
-server.post('/filter', postFilter);
+swagger.addGet({
+  'spec': {
+    "description": "Return the seed list from current settings",
+    "summary": "Return the seed list from current settings",
+    "path": "/seed",
+    "method": "GET",
+    "params": [],
+    "responseClass": "Array",
+    "errorResponses": [],
+    "nickname": "getSeed"
+  },
+  'action': routes.getSeed
+});
+swagger.addPost({
+  'spec': {
+    "description": "Add a seed in seed list",
+    "summary": "Add a seed in seed list",
+    "path": "/seed",
+    "method": "POST",
+    "params": [{
+      "paramType": "body",
+      "name": "url",
+      "description": "Url to add as seed",
+      "dataType": "string",
+      "required": true
+    }],
+    "errorResponses": [],
+    "nickname": "postSeed"
+  },
+  'action': routes.postSeed
+});
 
-/**
-  * @method GET
-  * @uri    /depth
-  *
-  * Return the max depth from current settings
-  */
-server.get('/depth', getDepth);
-/**
-  * @method POST
-  * @uri    /depth
-  * @params depth  : New depth
-  *
-  * Change the max depth where the crawling should stop
-  */
-server.post('/depth', postDepth);
+swagger.addGet({
+  'spec': {
+    "description": "Return the filter list from current settings",
+    "summary": "Return the filter list from current settings",
+    "path": "/filter",
+    "method": "GET",
+    "params": [],
+    "responseClass": "Filters",
+    "errorResponses": [],
+    "nickname": "getFilter"
+  },
+  'action': routes.getFilter
+});
+swagger.addPost({
+  'spec': {
+    "description": "Add a filter",
+    "summary": "Add a filter",
+    "path": "/filter",
+    "method": "POST",
+    "params": [{
+      "paramType": "body",
+      "name": "keyword",
+      "description": "Keyword that must be present in scrapped pages",
+      "dataType": "string",
+      "required": true
+    },{
+      "paramType": "body",
+      "name": "target",
+      "description": "Search the keyword in one of the following target: Page Title, URL, Body",
+      "dataType": "string",
+      "required": true,
+      "allowableValues": {
+        "valueType": "LIST",
+        "values": [
+          "title",
+          "url",
+          "body"
+        ]
+      }
+    }],
+    "errorResponses": [],
+    "nickname": "postFilter"
+  },
+  'action': routes.postFilter
+});
 
-server.get('/output.csv', getCsv);
-server.get('/keywords.csv', getKeywords);
+swagger.addGet({
+  'spec': {
+    "description": "Return the max depth from current settings",
+    "summary": "Return the max depth from current settings",
+    "path": "/depth",
+    "method": "GET",
+    "params": [],
+    "responseClass": "Depth",
+    "errorResponses": [],
+    "nickname": "getDepth"
+  },
+  'action': routes.getDepth
+});
+swagger.addPost({
+  'spec': {
+    "description": "Change the max depth where the crawling should stop",
+    "summary": "Change the max depth where the crawling should stop",
+    "path": "/depth",
+    "method": "POST",
+    "params": [{
+      "paramType": "body",
+      "name": "depth",
+      "description": "New depth",
+      "dataType": "int",
+      "required": true
+    }],
+    "errorResponses": [],
+    "nickname": "postDepth"
+  },
+  'action': routes.postDepth
+});
+
+
+server.get('/output.csv', routes.getCsv);
+server.get('/keywords.csv', routes.getKeywords);
+
+swagger.configureSwaggerPaths("", "/api-docs", "");
+swagger.configure("http://localhost:8081", "0.1");
+
+var docs_handler = express.static(__dirname + '/docs/');
+server.get(/^\/docs(\/.*)?$/, function(req, res, next) {
+  if (req.url === '/docs') { // express static barfs on root url w/o trailing slash
+    res.writeHead(302, { 'Location' : req.url + '/' });
+    res.end();
+    return;
+  }
+  // take off leading /docs so that connect locates file correctly
+  req.url = req.url.substr('/docs'.length);
+  return docs_handler(req, res, next);
+});
 
 server.listen(8081, function() {
   console.log('Express listening at 0.0.0.0:%d',8081);
-});
-
-client.on('ready', function(){
-  console.log('Connected to redis server !');
 });
