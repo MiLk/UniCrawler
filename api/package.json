@@ -15,7 +15,7 @@
   "scripts": {
     "test": ""
   },
-  "repository": "git://github.com/MiLk/ic05-crawler.git",
+  "repository": "https://github.com/MiLk/UniCrawler.git",
   "author": "Emilien Kenler <hello@emilienkenler.com>",
   "license": "BSD"
 }
