@@ -1,5 +1,5 @@
 //fichier main.js
-//permet d'attendre la fin du chargement de la page avant d'exécuter la page
+//permet d'attendre la fin du chargement de la page avant d'exÃ©cuter la page
 $(document).ready(function(){
   var api_url = 'http://ic05-api.emilienkenler.com';
   (function poll(){
@@ -57,7 +57,7 @@ $(document).ready(function(){
       }
     }
   }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-  // ici on récupere l id du button
+  // ici on rÃ©cupere l id du button
   $('#seed button').on ("click", function() {
     var val = $('#seed input').val(); // on recupere la valeur du champs
     $.ajax({
@@ -124,7 +124,7 @@ $(document).ready(function(){
       }
     }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
   });
-  // ici on récupere l id du button profodeur
+  // ici on rÃ©cupere l id du button profodeur
   $('#profondeur button').on ("click", function() {
     var val = $('#profondeur input').val(); // on recupere la valeur du champs
     $.ajax({
@@ -139,7 +139,7 @@ $(document).ready(function(){
       }
     }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
   });
-  // ici on récupere l id de l'url
+  // ici on rÃ©cupere l id de l'url
   $('#url button').on ("click", function() {
     var val = $('#url input').val(); // on recupere la valeur du champs
     $.ajax({
@@ -155,7 +155,7 @@ $(document).ready(function(){
       }
     }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
   });
-  // ici on récupere l id title
+  // ici on rÃ©cupere l id title
   $('#title button').on ("click", function() {
     var val = $('#title input').val(); // on recupere la valeur du champs
     $.ajax({
@@ -171,7 +171,7 @@ $(document).ready(function(){
       }
     }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
   });
-  // ici on récupere l id body
+  // ici on rÃ©cupere l id body
   $('#body button').on ("click", function() {
     var val = $('#body input').val(); // on recupere la valeur du champs
     $.ajax({
