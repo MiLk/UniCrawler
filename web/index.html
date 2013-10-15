@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html ng-app>
 <head>
   <title>UniCrawler</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
   <link href="css/bootstrap-responsive.min.css" rel="stylesheet" media="screen">
+  <link href="css/main.css" rel="stylesheet" media="screen">
 </head>
-<body>
+<body ng-controller="GlobalCtrl">
   <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="navbar-inner">
       <div class="container">
@@ -29,6 +30,14 @@
     </div>
   </div>
   <div class="container" style="padding-top: 60px;">
+    <div class="row ng-cloak" ng-show="error">
+      <div class="span12">
+        <div class="alert alert-error">
+          {{ error }}
+        </div>
+      </div>
+    </div>
+    
     <div class="row">
       <div class="span4">
         <div class="well">
@@ -61,10 +70,10 @@
           <strong>Réinitialiser la configuration:</strong>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="reset_setting"> <br>
           <em>En cochant cette case, tous les paramètres seront effacés (seeds, filtres, profondeur, ...).</em>          
         </div>
-        <div class="well">
+        <div class="well" ng-controller="StatusCtrl">
           <h4>Etat du serveur</h4><br />
-          Noeuds correspondants trouvés: <span id="visited">0</span><br />
-          Noeuds à explorer: <span id="working">0</span><br />
+          Noeuds correspondants trouvés: {{ visited }}<br />
+          Noeuds à explorer: {{ working }}<br />
           <br />
           <a href="http://ic05-api.emilienkenler.com/output.csv" class="btn btn-primary"><i class="icon-download icon-white"></i>&nbsp;&nbsp;Download Links .CSV</a>
           <a href="http://ic05-api.emilienkenler.com/keywords.csv" class="btn btn-primary"><i class="icon-download icon-white"></i>&nbsp;&nbsp;Download Keywords .CSV</a>
@@ -124,8 +133,8 @@
       
   <script src="http://code.jquery.com/jquery.js"></script>
   <script src="js/bootstrap.min.js"></script>
+  <script src="js/angular.min.js"></script>
   <script src="js/main.js"></script>
-  
 </body>
 
 </html>

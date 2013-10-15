@@ -1,21 +1,39 @@
+var api_url = 'http://ic05-api.emilienkenler.com';
+
+function GlobalCtrl($scope) {
+  // coucou
+  $scope.error = false;
+}
+
+function StatusCtrl($scope, $http, $timeout) {
+  (function poll(){
+    if(!$scope.retry){
+      $scope.retry = 500; 
+    }
+    $http.get(api_url + '/state').success(function(data) {
+      $scope.$parent.error = false;
+      $scope.working = data.working;
+      $scope.visited = data.visited;
+      $timeout(poll, $scope.retry);
+    }).error(function(data, status){
+      $scope.$parent.error = "Une erreur interne s'est produite";
+      if(data){
+        console.error(data);
+        $scope.$parent.error = data;
+      }
+      else if(status){
+        $scope.$parent.error = status;
+      }
+      $scope.retry *= 2;
+      $timeout(poll, $scope.retry);
+    });
+  })();
+}
+
+
 //fichier main.js
 //permet d'attendre la fin du chargement de la page avant d'exécuter la page
-$(document).ready(function(){
-  var api_url = 'http://ic05-api.emilienkenler.com';
-  (function poll(){
-    $.ajax({
-      type: 'GET',
-      url: api_url + '/state',
-      crossDomain: true,
-      dataType: 'json',
-      timeout: 30000,
-      success: function(data){
-        $("#working").text(data.working);
-        $("#visited").text(data.visited);
-      },
-      complete: poll
-    }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-  })();
+/*$(document).ready(function(){
   $.ajax({
     type: 'GET',
     url: api_url + '/seed',
@@ -188,3 +206,4 @@ $(document).ready(function(){
     }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
   });
 });
+*/
