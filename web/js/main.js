@@ -5,6 +5,7 @@ function GlobalCtrl($scope) {
   $scope.error = false;
 }
 
+// État de l'exploration
 function StatusCtrl($scope, $http, $timeout) {
   (function poll(){
     if(!$scope.retry){
@@ -16,65 +17,50 @@ function StatusCtrl($scope, $http, $timeout) {
       $scope.visited = data.visited;
       $timeout(poll, $scope.retry);
     }).error(function(data, status){
-      $scope.$parent.error = "Une erreur interne s'est produite";
-      if(data){
-        console.error(data);
-        $scope.$parent.error = data;
-      }
-      else if(status){
-        $scope.$parent.error = status;
-      }
+      $scope.$parent.error = "Impossible de récupérer l'état";
+      console.error(data);
       $scope.retry *= 2;
       $timeout(poll, $scope.retry);
     });
   })();
 }
 
+// Seeds
+function SeedCtrl($scope, $http) {
+  $http.get(api_url + '/seed').success(function(data) {
+    $scope.$parent.error = false;
+    $scope.seeds = data;
+  }).error(function(data, status){
+    $scope.$parent.error = "Impossible de récupérer les seed";
+    console.error(data);
+  });
+}
 
-//fichier main.js
-//permet d'attendre la fin du chargement de la page avant d'exécuter la page
-/*$(document).ready(function(){
-  $.ajax({
-    type: 'GET',
-    url: api_url + '/seed',
-    crossDomain: true,
-    dataType: 'json',
-    timeout: 0,
-    success: function(data) {
-      for(var i = 0; i < data.length; i++) {
-        $('#seed-list').append('<li>'+data[i]+'</li>');
-      }
-    }
-  }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-  //pour les profodeur
-  $.ajax({
-    type: 'GET',
-    url: api_url + '/depth',
-    crossDomain: true,
-    dataType: 'json',
-    timeout: 0,
-    success: function(data) {
-        $('#profondeur input').val(data.depth);
-    }
-  }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-  $.ajax({
-    type: 'GET',
-    url: api_url + '/filter',
-    crossDomain: true,
-    dataType: 'json',
-    timeout: 0,
-    success: function(data) {
-        for(var i = 0; i < data.url.length; i++) {
-        $('#url-list').append('<li>'+data.url[i]+'</li>');
-      }
-        for(var i = 0; i < data.title.length; i++) {
-        $('#title-list').append('<li>'+data.title[i]+'</li>');
-      }
-        for(var i = 0; i < data.body.length; i++) {
-        $('#body-list').append('<li>'+data.body[i]+'</li>');
-      }
-    }
-  }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
+// Profondeur
+function DepthCtrl($scope, $http) {
+  $http.get(api_url + '/depth').success(function(data) {
+    $scope.$parent.error = false;
+    $scope.depth = data.depth;
+  }).error(function(data, status){
+    $scope.$parent.error = "Impossible de récupérer la profondeur";
+    console.error(data);
+  });
+}
+
+// Filtres
+function FilterCtrl($scope, $http) {
+  $http.get(api_url + '/filter').success(function(data) {
+    $scope.$parent.error = false;
+    $scope.filters = data;
+  }).error(function(data, status){
+    $scope.$parent.error = "Impossible de récupérer les filtres";
+    console.error(data);
+  });
+}
+
+
+// ancien js
+if(0){
   // ici on récupere l id du button
   $('#seed button').on ("click", function() {
     var val = $('#seed input').val(); // on recupere la valeur du champs
@@ -205,5 +191,4 @@ function StatusCtrl($scope, $http, $timeout) {
       }
     }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
   });
-});
-*/
+}
