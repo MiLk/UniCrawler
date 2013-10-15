@@ -6,6 +6,7 @@ var util = require('util')
   , async = require('async')
   , request = require('request')
   , redis = require('redis')
+  , neo4j = require('neo4j')
   , crypto = require('crypto')
   , EventEmitter = require('events').EventEmitter
   , events = new EventEmitter()
@@ -21,6 +22,7 @@ var subscriber = redis.createClient(6379, '127.0.0.1', {
   detect_buffers: true
 });
 
+var db = new neo4j.GraphDatabase('http://127.0.0.1:7474');
 
 var handleWebPage = function(error, response, body, options) { // Get the response of the request
   var url = options.url
@@ -252,6 +254,17 @@ subscriber.on('error', function(error) {
   util.error('Redis error: ' + error);
 });
 
+var addNode = function(data, callback) {
+  if(!data.url) return callback('Each node must have an url.');
+  var query = 'START n=node(*) WHERE has(n.url) AND n.url ="' + data.url + '" RETURN n;';
+  db.query(query, {}, function(err, results) {
+    if(err) return callback(err);
+    if(results.length != 0) return callback(null, results[0]['n']);
+    var node = db.createNode(data);
+    node.save(callback);
+  });
+};
+
 // When redis is connected
 client.on('ready', function(){
   util.log('Redis connected');
@@ -274,9 +287,12 @@ events.on('start', function() {
     client.lrange('seed', 0, -1, function(err, results) {
       if(err) util.error('Get seed: ' +err);
       async.each(results, function(url,cb) {
-        // Push the seed into working list
-        client.rpush('working',url, 0, function(err) {
-          cb(err);
+        addNode({ url: url, depth: 0 }, function(err, node) {
+          if(err) return cb(err);
+          // Push the seed into working list
+          client.rpush('working',url, 0, function(err) {
+            return cb(err);
+          });
         });
       }, function(err) {
         if(err) util.error('Initialize seed: '+err);
@@ -301,17 +317,15 @@ events.on('stop', function() {
  */
 events.on('link_found', function(source, link, depth) {
   if(!link) return;
-  //util.log('Link found: ' + link.title + ' - ' + link.url);
-  events.emit('good_link_found', source, link);
-  events.emit('link_to_follow', source, link, depth);
+  var dst = resolve(source, link.url);
+  events.emit('good_link_found', source, dst, depth);
+  events.emit('link_to_follow', source, dst, depth);
 });
 
 // Add all link to the working list
 // Link will be scrapped
-events.on('link_to_follow', function(source, link, depth) {
+events.on('link_to_follow', function(source, dst, depth) {
   if(is_running) {
-    var dst = resolve(source, link.url);
-    //util.log(source + ' -> ' + link.url + ' : ' + dst);
     client.rpush('working',dst, depth, function(err, reply) {
       if(err) util.error('link_to_follow error: ' + err);
     });
@@ -320,10 +334,30 @@ events.on('link_to_follow', function(source, link, depth) {
 
 // Store the link between source and destination
 // Useful to export to gephi
-events.on('good_link_found', function(source,link) {
+events.on('good_link_found', function(source,dst, depth) {
+  var query = 'START n=node(*) WHERE has(n.url) AND n.url ="' + source + '" RETURN n;';
+  db.query(query, {}, function(err, results) {
+    if(err) return util.error('good_link_found error: ' + err);
+    var addRelation = function(src_node) {
+      addNode({ url: dst, depth: depth }, function(err, dst_node) {
+        if(err) return util.error(err);
+        src_node.createRelationshipTo(dst_node, 'link', {}, function(err, rel) {
+          if(err) util.error(err);
+        });
+      });
+    };
+    if(results.length == 0) {
+      addNode({ url: source, depth: (depth-1) }, function(err, src_node) {
+        if(err) return util.error(err);
+        addRelation(src_node);
+      });
+    } else {
+      addRelation(results[0]['n']);
+    }
+  });
   client.hget('encoded_url', source, function(err, encrypted_url) {
     if(err) util.error('good_link_found error: ' + err);
-    else client.rpush('links_'+encrypted_url,resolve(source, link.url));
+    else client.rpush('links_'+encrypted_url,resolve(source, dst));
   });
 });
 
