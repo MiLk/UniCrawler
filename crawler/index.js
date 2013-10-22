@@ -5,7 +5,9 @@ var util = require('util')
   , _ = require('underscore')._
   , async = require('async')
   , request = require('request')
+  , CONFIG = require('config')
   , redis = require('redis')
+  , neo4j = require('neo4j')
   , crypto = require('crypto')
   , EventEmitter = require('events').EventEmitter
   , events = new EventEmitter()
@@ -14,13 +16,14 @@ var util = require('util')
   ;
 
 // Connect to the redis database
-var client = redis.createClient(6379, '127.0.0.1', {
+var client = redis.createClient(CONFIG.redis.port, CONFIG.redis.address, {
   detect_buffers: true
 });
-var subscriber = redis.createClient(6379, '127.0.0.1', {
+var subscriber = redis.createClient(CONFIG.redis.port, CONFIG.redis.address, {
   detect_buffers: true
 });
 
+var db = new neo4j.GraphDatabase(CONFIG.neo4j);
 
 var handleWebPage = function(error, response, body, options) { // Get the response of the request
   var url = options.url
@@ -274,9 +277,14 @@ events.on('start', function() {
     client.lrange('seed', 0, -1, function(err, results) {
       if(err) util.error('Get seed: ' +err);
       async.each(results, function(url,cb) {
-        // Push the seed into working list
-        client.rpush('working',url, 0, function(err) {
-          cb(err);
+        var node = db.createNode({ url: url, depth: 0 });
+        node.save(function(err, node) {
+          if(err) return cb(err);
+          util.log('Node ('+node.id+') created: ' + util.inspect(node.data, true, 4, true));
+          // Push the seed into working list
+          client.rpush('working',url, 0, function(err) {
+            return cb(err);
+          });
         });
       }, function(err) {
         if(err) util.error('Initialize seed: '+err);
@@ -321,6 +329,16 @@ events.on('link_to_follow', function(source, link, depth) {
 // Store the link between source and destination
 // Useful to export to gephi
 events.on('good_link_found', function(source,link) {
+  var query = [
+    'START n=node(*)',
+    'WHERE n.url = "'+source+'"',
+    'RETURN n;'
+  ].join(' ');
+  var params = { };
+  db.query(query, params, function(err, results) {
+    if(err) util.error('good_link_found error: ' + err);
+    util.log(util.inspect(results,true,1,true));
+  });
   client.hget('encoded_url', source, function(err, encrypted_url) {
     if(err) util.error('good_link_found error: ' + err);
     else client.rpush('links_'+encrypted_url,resolve(source, link.url));

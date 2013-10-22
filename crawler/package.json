@@ -8,7 +8,9 @@
     "underscore": "*",
     "hiredis": "*",
     "redis": "*",
-    "async": "*"
+    "async": "*",
+    "neo4j": "~1.0.0",
+    "config": "~0.4.31"
   },
   "devDependencies": {},
   "scripts": {
