@@ -21,7 +21,7 @@
           <ul class="nav">
             <li class="active"><a href="#">Home</a></li>
             <li><a href="http://ic05-api.emilienkenler.com/docs">Docs</a></li>
-            <li><a href="https://github.com/MiLk/ic05-crawler">Sources</a></li>
+            <li><a href="https://github.com/MiLk/UniCrawler">Sources</a></li>
             <li><a href="http://www.emilienkenler.com/">Contact</a></li>
           </ul>
         </div><!--/.nav-collapse -->
@@ -44,7 +44,7 @@
       
       <div class="span4">
         <div class="well">
-          <h4>Contrôle</h4><br> 
+          <h4>ContrÃ´le</h4><br> 
           <div class="btn-group">
             <button class="btn btn-success" id="start"><i class="icon-play
             icon-white"></i>&nbsp;&nbsp;Start</button>
@@ -55,16 +55,16 @@
           </div>
           <br>
           <br />
-          <strong>Réinitialiser les données:</strong>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="reset_data" checked="checked"> <br>
-          <em>En cochant cette case, les données récoltées par le crawler seront effacées (noeuds, liens, mots-clés).</em><br />
+          <strong>RÃ©initialiser les donnÃ©es:</strong>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="reset_data" checked="checked"> <br>
+          <em>En cochant cette case, les donnÃ©es rÃ©coltÃ©es par le crawler seront effacÃ©es (noeuds, liens, mots-clÃ©s).</em><br />
           <br />
-          <strong>Réinitialiser la configuration:</strong>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="reset_setting"> <br>
-          <em>En cochant cette case, tous les paramètres seront effacés (seeds, filtres, profondeur, ...).</em>          
+          <strong>RÃ©initialiser la configuration:</strong>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="reset_setting"> <br>
+          <em>En cochant cette case, tous les paramÃ¨tres seront effacÃ©s (seeds, filtres, profondeur, ...).</em>          
         </div>
         <div class="well">
           <h4>Etat du serveur</h4><br />
-          Noeuds correspondants trouvés: <span id="visited">0</span><br />
-          Noeuds à explorer: <span id="working">0</span><br />
+          Noeuds correspondants trouvÃ©s: <span id="visited">0</span><br />
+          Noeuds Ã  explorer: <span id="working">0</span><br />
           <br />
           <a href="http://ic05-api.emilienkenler.com/output.csv" class="btn btn-primary"><i class="icon-download icon-white"></i>&nbsp;&nbsp;Download Links .CSV</a>
           <a href="http://ic05-api.emilienkenler.com/keywords.csv" class="btn btn-primary"><i class="icon-download icon-white"></i>&nbsp;&nbsp;Download Keywords .CSV</a>
@@ -73,7 +73,7 @@
         
       <div class="span4">
         <div class="well">
-          <h4>Réglages</h4><br>
+          <h4>RÃ©glages</h4><br>
           <form class="form-horizontal">
             <span class="help-inline">Profondeur: </span><br>
             <div class="control-group">
@@ -90,7 +90,7 @@
                 <input class="span3" id="id_url" type="text">
                 <button class="btn" type="button"><i class="icon-plus"></i></button>
               </div>
-              <span class="help-inline">Seuls les pages dont l'URL contient au moins un des mots clés suivants seront traitées.</span>
+              <span class="help-inline">Seuls les pages dont l'URL contient au moins un des mots clÃ©s suivants seront traitÃ©es.</span>
             </div>
             <ul id="url-list" class="well">
             </ul>
@@ -101,7 +101,7 @@
                 <input class="span3" id="id_title" type="text">
                <button class="btn" type="button"><i class="icon-plus"></i></button>
               </div>
-              <span class="help-inline">Seuls les pages dont le titre contient au moins un des mots clés suivants seront traitées.</span>
+              <span class="help-inline">Seuls les pages dont le titre contient au moins un des mots clÃ©s suivants seront traitÃ©es.</span>
             </div>
             <ul id="title-list" class="well">
             </ul>
@@ -112,7 +112,7 @@
                <input class="span3" id="id_body" type="text">
                <button class="btn" type="button"><i class="icon-plus"></i></button>
              </div>
-             <span class="help-inline">Seuls les pages dont le contenu contient au moins un des mots clés suivants seront traitées.</span>
+             <span class="help-inline">Seuls les pages dont le contenu contient au moins un des mots clÃ©s suivants seront traitÃ©es.</span>
             </div>
             <ul id="body-list" class="well">
             </ul>
