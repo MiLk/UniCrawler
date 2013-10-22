@@ -13,6 +13,17 @@ function errorHandler(err, req, res, next) {
 server.use(express.bodyParser());
 server.use(express.methodOverride());
 server.use(errorHandler);
+server.use(function(req, res, next){
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  if ('OPTIONS' == req.method) {
+    res.set('Content-Type', 'application/json');
+    res.send(204);
+  } else {
+    next();
+  }
+});
 
 swagger.setAppHandler(server);
 swagger.addModels(models);
