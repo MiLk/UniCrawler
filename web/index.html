@@ -43,8 +43,10 @@
         <div class="well" ng-controller="SeedCtrl">
           <h4>Seed</h4> <br>
           <div class="input-append" id="seed">
-            <input type="text" class="span3" ng-model="newSeed">
-            <button class="btn" type="button" ng-click="addSeed()"><i class="icon-plus"></i></button>
+            <form ng-submit="addSeed()">
+              <input type="text" class="span3" ng-model="newSeed" placeholder="http://www.example.com">
+              <button class="btn" type="button" ng-click="addSeed()"><i class="icon-plus"></i></button>
+            </form>
           </div>
           <ul id="seed-list">
               <li ng-repeat="seed in seeds">

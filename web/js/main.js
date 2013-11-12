@@ -39,6 +39,9 @@ function SeedCtrl($scope, $http) {
   
   // Ajout
   $scope.addSeed = function() {
+    if($scope.newSeed.match(/^https?:\/\//) == null){
+      $scope.newSeed = "http://" + $scope.newSeed;
+    }
     var postData = { url: $scope.newSeed };
     $http.post(api_url + '/seed', postData).success(function(data) {
       $scope.$parent.error = false;
