@@ -9,7 +9,9 @@
     "redis": "~0.8.3",
     "underscore": "~1.4.4",
     "express": "~3.2.6",
-    "swagger-node-express": "~1.2.3"
+    "swagger-node-express": "~1.2.3",
+    "neo4j": "~1.0.0",
+    "config": "~0.4.33"
   },
   "devDependencies": {},
   "scripts": {

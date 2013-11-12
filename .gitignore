@@ -3,3 +3,4 @@ output.csv
 node_modules/
 npm-debug.log
 crawler/config/runtime.json
+api/config/runtime.json
