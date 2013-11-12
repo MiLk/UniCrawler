@@ -88,7 +88,7 @@ function postSeed(req, res, next) {
 
 function deleteSeed(req, res, next) {
   res.set('Access-Control-Allow-Origin', '*');
-  var url = req.body.url;
+  var url = req.query.url;
   if(!url) return next('You must specify an url to delete.');
   res.send(201, {url: url});
   client.lrem('seed',0,url);
@@ -172,6 +172,7 @@ module.exports = {
   postReset: postReset,
   getSeed: getSeed,
   postSeed: postSeed,
+  deleteSeed: deleteSeed,
   getFilter: getFilter,
   postFilter: postFilter,
   getDepth: getDepth,
