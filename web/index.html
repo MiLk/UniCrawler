@@ -42,12 +42,12 @@
       <div class="span4">
         <div class="well" ng-controller="SeedCtrl">
           <h4>Seed</h4> <br>
-          <div class="input-append">
-            <form ng-submit="addSeed()">
+          <form ng-submit="addSeed()">
+            <div class="input-append">
               <input type="text" class="span3" ng-model="newSeed" placeholder="http://www.example.com">
               <button class="btn" type="button" ng-click="addSeed()"><i class="icon-plus"></i></button>
-            </form>
-          </div>
+            </div>
+          </form>
           <ul id="seed-list">
               <li ng-repeat="seed in seeds">
                   {{ seed }} <a ng-click="deleteSeed($index)" href=""><i class="icon-remove"></i></a></a>
@@ -99,19 +99,21 @@
 
             <h4>Filtres</h4>
             <div ng-controller="FilterCtrl">
-                <div class="control-group" id="url">
+              <form ng-submit="addFilterUrl()">
+                <div class="control-group">
                   <label for="id_url">Adresse</label>
                   <div class="input-append">
-                    <input class="span3" id="id_url" type="text">
-                    <button class="btn" type="button"><i class="icon-plus"></i></button>
+                    <input class="span3" type="text" id="id_url" ng-model="newFilterUrl">
+                    <button class="btn" type="button" ng-click="addFilterUrl()"><i class="icon-plus"></i></button>
                   </div>
                   <span class="help-inline">Seuls les pages dont l'URL contient au moins un des mots clés suivants seront traitées.</span>
                 </div>
-                <ul class="well">
-                    <li ng-repeat="url in filters.url">
-                        {{ url }}
-                    </li>
-                </ul>
+              </form>
+              <ul class="well">
+                  <li ng-repeat="url in filters.url">
+                      {{ url }}
+                  </li>
+              </ul>
             
                 <div class="control-group" id="title">
                   <label for="id_title">Titre</label>

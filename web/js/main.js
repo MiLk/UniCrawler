@@ -114,8 +114,39 @@ function FilterCtrl($scope, $http) {
     $scope.$parent.error = "Impossible de récupérer les filtres";
     console.error(data);
   });
-}
+  
+  // Add
+  $scope.addFilter = function(target, val) {
+    if(!val) return;
+    var postData = { keyword: val, target: target };
+    $http.post(api_url + '/filter', postData).success(function(data) {
+      $scope.$parent.error = false;
+      $scope.filters[target].push(val);
+      $scope.newSeed = "";
+    }).error(function(data, status){
+      $scope.$parent.error = "Impossible d'ajouter le " + target;
+      console.error(data);      
+    });
+  };
+  
+  // Add address
+  $scope.addFilterUrl = function() {
+    $scope.addFilter('url', $scope.newFilterUrl);
+  }
 
+  // Delete
+  // TODO : method in API
+  $scope.deleteFilter = function(target, index) {
+    var data = { url: $scope.filters[target][index] };
+    $http.delete(api_url + '/filter', {params: data}).success(function(data) {
+      $scope.$parent.error = false;
+      $scope.filters[target].splice(index, 1);
+    }).error(function(data, status){
+      $scope.$parent.error = "Impossible de supprimer le " + target;
+      console.error(data);      
+    });
+  };
+}
 
 // Control buttons
 function ButtonsCtrl($scope, $http) {
@@ -163,22 +194,6 @@ function ButtonsCtrl($scope, $http) {
 
 // ancien js
 if(0){
-  // ici on récupere l id de l'url
-  $('#url button').on ("click", function() {
-    var val = $('#url input').val(); // on recupere la valeur du champs
-    $.ajax({
-      type: 'POST',
-      url: api_url + '/filter',
-      crossDomain: true,
-      data: { keyword:val, target:'url' }, //equivalent a un tableau associatif
-      dataType: 'json',
-      timeout: 0,
-      success: function(data) {
-        $('#url-list').append('<li>'+val+'</li>');
-        $('#url input').val('');
-      }
-    }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-  });
   // ici on récupere l id title
   $('#title button').on ("click", function() {
     var val = $('#title input').val(); // on recupere la valeur du champs
