@@ -57,22 +57,22 @@
       </div>
       
       <div class="span4">
-        <div class="well">
-          <h4>Contrôle</h4><br> 
+        <div class="well" ng-controller="ButtonsCtrl">
+          <h4>Contrôle</h4>
           <div class="btn-group">
-            <button class="btn btn-success" id="start"><i class="icon-play
+            <button class="btn btn-success" ng-click="startCrawl()"><i class="icon-play
             icon-white"></i>&nbsp;&nbsp;Start</button>
-            <button class="btn btn-danger" id="stop"><i class="icon-stop
+            <button class="btn btn-danger" ng-click="stopCrawl()"><i class="icon-stop
             icon-white"></i>&nbsp;&nbsp;Stop</button>
-            <button class="btn btn-warning" id="reset"><i class="icon-trash
+            <button class="btn btn-warning" ng-click="resetCrawl()"><i class="icon-trash
             icon-white"></i>&nbsp;&nbsp;Reset</button>    
           </div>
           <br>
           <br />
-          <strong>Réinitialiser les données:</strong>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="reset_data" checked="checked"> <br>
+          <label><strong>Réinitialiser les données</strong> <input type="checkbox" ng-model="resetData"></label><br>
           <em>En cochant cette case, les données récoltées par le crawler seront effacées (noeuds, liens, mots-clés).</em><br />
           <br />
-          <strong>Réinitialiser la configuration:</strong>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="reset_setting"> <br>
+          <label><strong>Réinitialiser la configuration</strong> <input type="checkbox" ng-model="resetSettings"></label><br>
           <em>En cochant cette case, tous les paramètres seront effacés (seeds, filtres, profondeur, ...).</em>          
         </div>
         <div class="well" ng-controller="StatusCtrl">

@@ -2,6 +2,20 @@ var api_url = 'http://ic05-api.emilienkenler.com';
 
 function GlobalCtrl($scope) {
   $scope.error = false;
+  
+  // Reset all the GUI
+  $scope.resetApp = function(){
+    // TODO This doesn't work, we need to refresh or something
+    $scope.seeds = [];
+    $scope.working = 0;
+    $scope.visited = 0;
+    $scope.newSeed = '';
+    $scope.newFilterAddress = '';
+    $scope.newFilterTitle = '';
+    $scope.newFilterContent = '';
+    $scope.depth = '';
+    $scope.filters = [];
+  };
 }
 
 // Crawl status
@@ -77,7 +91,7 @@ function DepthCtrl($scope, $http) {
     console.error(data);
   });
   
-  // Enregistrement
+  // Save
   $scope.DepthSet = function(){
     var postData = { depth: $scope.depth };
     $http.post(api_url + '/depth', postData).success(function(data) {
@@ -90,9 +104,9 @@ function DepthCtrl($scope, $http) {
   };
 }
 
-// Filtres
+// Filters
 function FilterCtrl($scope, $http) {
-  // Lecture
+  // Get
   $http.get(api_url + '/filter').success(function(data) {
     $scope.$parent.error = false;
     $scope.filters = data;
@@ -103,62 +117,52 @@ function FilterCtrl($scope, $http) {
 }
 
 
+// Control buttons
+function ButtonsCtrl($scope, $http) {
+  // Start
+  $scope.startCrawl = function(index) {
+    $http.post(api_url + '/start').success(function(data) {
+      $scope.$parent.error = false;
+    }).error(function(data, status){
+      $scope.$parent.error = "Impossible de démarrer le crawl";
+      console.error(data);
+    });
+  };
+  
+  // Stop
+  $scope.stopCrawl = function(index) {
+    $http.post(api_url + '/stop').success(function(data) {
+      $scope.$parent.error = false;
+    }).error(function(data, status){
+      $scope.$parent.error = "Impossible d'arrêter le crawl";
+      console.error(data);
+    });
+  };
+  
+  // Reset
+  $scope.resetCrawl = function(index) {
+    var type;
+    if($scope.resetData && $scope.restSettings) type = 0;
+    else if($scope.resetData && !$scope.resetSettings) type = 1;
+    else if(!$scope.resetData && $scope.resetSettings) type = 2;
+    else return;
+    
+    $http.post(api_url + '/reset', { type: type }).success(function(data) {
+      if($scope.resetSettings){
+        $scope.$parent.resetApp();
+      }
+      
+      $scope.$parent.error = false;
+    }).error(function(data, status){
+      $scope.$parent.error = "Impossible de réinitialiser le crawl";
+      console.error(data);
+    });
+  };
+}
+
+
 // ancien js
 if(0){
-  // ici fonction pour start
-  $('#start').on ("click", function() {
-    $.ajax({
-      type: 'POST',
-      url: api_url + '/start',
-      crossDomain: true,
-      dataType: 'json',
-      timeout: 0,
-      success: function(data) {
-      }
-    }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-  });
-  // ici fonction pour stop
-  $('#stop').on ("click", function() {
-    $.ajax({
-      type: 'POST',
-      url: api_url + '/stop',
-      crossDomain: true,
-      dataType: 'json',
-      timeout: 0,
-      success: function(data) {
-      }
-    }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-  });
-  // ici fonction pour reset
-  $('#reset').on ("click", function() {
-    var reset_data =$('#reset_data').is(':checked');
-    var setting =$('#reset_setting').is(':checked');
-    var type;
-    if(reset_data && setting) type = 0;
-    else if(reset_data && !setting) type = 1;
-    else if(!reset_data && setting) type = 2;
-    else return;
-    $.ajax({
-      type: 'POST',
-      url: api_url + '/reset',
-      data: { type: type },
-      crossDomain: true,
-      dataType: 'json',
-      timeout: 0,
-      success: function(data) {
-        if(setting)
-        {
-          $('input').val('');
-          $('#seed-list').html('');
-          $('#url-list').html('');
-          $('#title-list').html('');
-          $('#body-list').html('');
-        }
-      }
-    }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-  });
-  // ici on récupere l id du button profodeur
-
   // ici on récupere l id de l'url
   $('#url button').on ("click", function() {
     var val = $('#url input').val(); // on recupere la valeur du champs
