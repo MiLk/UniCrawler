@@ -1,13 +1,12 @@
 var api_url = 'http://ic05-api.emilienkenler.com';
 
 function GlobalCtrl($scope) {
-  // coucou
   $scope.error = false;
 }
 
-// État de l'exploration
+// Crawl status
 function StatusCtrl($scope, $http, $timeout) {
-  // Lecture à intervalles réguliers
+  // Read with polling
   (function poll(){
     if(!$scope.retry){
       $scope.retry = 500; 
@@ -28,7 +27,7 @@ function StatusCtrl($scope, $http, $timeout) {
 
 // Seeds
 function SeedCtrl($scope, $http) {
-  // Lecture
+  // Get
   $http.get(api_url + '/seed').success(function(data) {
     $scope.$parent.error = false;
     $scope.seeds = data;
@@ -37,8 +36,9 @@ function SeedCtrl($scope, $http) {
     console.error(data);
   });
   
-  // Ajout
+  // Add
   $scope.addSeed = function() {
+    if(!$scope.newSeed) return;
     if($scope.newSeed.match(/^https?:\/\//) == null){
       $scope.newSeed = "http://" + $scope.newSeed;
     }
@@ -53,7 +53,7 @@ function SeedCtrl($scope, $http) {
     });
   };
 
-  // Suppression
+  // Delete
   $scope.deleteSeed = function(index) {
     var data = { url: $scope.seeds[index] };
     $http.delete(api_url + '/seed', {params: data}).success(function(data) {
@@ -68,7 +68,7 @@ function SeedCtrl($scope, $http) {
 
 // Profondeur
 function DepthCtrl($scope, $http) {
-  // Lecture
+  // Get
   $http.get(api_url + '/depth').success(function(data) {
     $scope.$parent.error = false;
     $scope.depth = data.depth;
