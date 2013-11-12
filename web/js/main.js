@@ -7,6 +7,7 @@ function GlobalCtrl($scope) {
 
 // État de l'exploration
 function StatusCtrl($scope, $http, $timeout) {
+  // Lecture à intervalles réguliers
   (function poll(){
     if(!$scope.retry){
       $scope.retry = 500; 
@@ -27,6 +28,7 @@ function StatusCtrl($scope, $http, $timeout) {
 
 // Seeds
 function SeedCtrl($scope, $http) {
+  // Lecture
   $http.get(api_url + '/seed').success(function(data) {
     $scope.$parent.error = false;
     $scope.seeds = data;
@@ -34,10 +36,39 @@ function SeedCtrl($scope, $http) {
     $scope.$parent.error = "Impossible de récupérer les seed";
     console.error(data);
   });
+  
+  // Ajout
+  $scope.addSeed = function() {
+    if($scope.newSeed.match(/^https?:\/\//) == null){
+      $scope.newSeed = "http://" + $scope.newSeed;
+    }
+    var postData = { url: $scope.newSeed };
+    $http.post(api_url + '/seed', postData).success(function(data) {
+      $scope.$parent.error = false;
+      $scope.seeds.push($scope.newSeed);
+      $scope.newSeed = "";
+    }).error(function(data, status){
+      $scope.$parent.error = "Impossible d'ajouter le seed";
+      console.error(data);      
+    });
+  };
+
+  // Suppression
+  $scope.deleteSeed = function(index) {
+    var data = { url: $scope.seeds[index] };
+    $http.delete(api_url + '/seed', {params: data}).success(function(data) {
+      $scope.$parent.error = false;
+      $scope.seeds.splice(index, 1);
+    }).error(function(data, status){
+      $scope.$parent.error = "Impossible de supprimer le seed";
+      console.error(data);      
+    });
+  };
 }
 
 // Profondeur
 function DepthCtrl($scope, $http) {
+  // Lecture
   $http.get(api_url + '/depth').success(function(data) {
     $scope.$parent.error = false;
     $scope.depth = data.depth;
@@ -45,10 +76,23 @@ function DepthCtrl($scope, $http) {
     $scope.$parent.error = "Impossible de récupérer la profondeur";
     console.error(data);
   });
+  
+  // Enregistrement
+  $scope.DepthSet = function(){
+    var postData = { depth: $scope.depth };
+    $http.post(api_url + '/depth', postData).success(function(data) {
+      $scope.$parent.error = false;
+      $scope.depth = postData.depth;
+    }).error(function(data, status){
+      $scope.$parent.error = "Impossible de sauvegarder la profondeur";
+      console.error(data);
+    });
+  };
 }
 
 // Filtres
 function FilterCtrl($scope, $http) {
+  // Lecture
   $http.get(api_url + '/filter').success(function(data) {
     $scope.$parent.error = false;
     $scope.filters = data;
@@ -61,21 +105,6 @@ function FilterCtrl($scope, $http) {
 
 // ancien js
 if(0){
-  // ici on récupere l id du button
-  $('#seed button').on ("click", function() {
-    var val = $('#seed input').val(); // on recupere la valeur du champs
-    $.ajax({
-      type: 'POST',
-      url: api_url + '/seed',
-      crossDomain: true,
-      data: { url: val }, //equivalent a un tableau associatif
-      dataType: 'json',
-      timeout: 0,
-      success: function(data) {
-        $('#seed-list').append('<li>'+data.url+'</li>');
-      }
-    }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-  });
   // ici fonction pour start
   $('#start').on ("click", function() {
     $.ajax({
@@ -129,20 +158,7 @@ if(0){
     }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
   });
   // ici on récupere l id du button profodeur
-  $('#profondeur button').on ("click", function() {
-    var val = $('#profondeur input').val(); // on recupere la valeur du champs
-    $.ajax({
-      type: 'POST',
-      url: api_url + '/depth',
-      crossDomain: true,
-      data: { depth: val }, //equivalent a un tableau associatif
-      dataType: 'json',
-      timeout: 0,
-      success: function(data) {
-        $('#profondeur input').val(val);
-      }
-    }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-  });
+
   // ici on récupere l id de l'url
   $('#url button').on ("click", function() {
     var val = $('#url input').val(); // on recupere la valeur du champs

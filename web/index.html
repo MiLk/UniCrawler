@@ -43,12 +43,14 @@
         <div class="well" ng-controller="SeedCtrl">
           <h4>Seed</h4> <br>
           <div class="input-append" id="seed">
-            <input type="text" class="span3">
-            <button class="btn" type="button"><i class="icon-plus"></i></button>
+            <form ng-submit="addSeed()">
+              <input type="text" class="span3" ng-model="newSeed" placeholder="http://www.example.com">
+              <button class="btn" type="button" ng-click="addSeed()"><i class="icon-plus"></i></button>
+            </form>
           </div>
           <ul id="seed-list">
               <li ng-repeat="seed in seeds">
-                  {{ seed }}
+                  {{ seed }} <a ng-click="deleteSeed($index)" href=""><i class="icon-remove"></i></a></a>
               </li>
           </ul>
         </div>
@@ -89,9 +91,9 @@
           <form class="form-horizontal">
             <span class="help-inline">Profondeur: </span><br>
             <div class="control-group">
-              <div class="input-append" id="profondeur"> 
-                <input class="span3" type="text" value="{{ depth }}">
-                <button class="btn" type="button" ><i class="icon-arrow-down"></i></button>
+              <div class="input-append" id="profondeur">
+                <input class="span3" type="text" value="" ng-model="depth">
+                <button class="btn" type="button" ng-click="DepthSet()"><i class="icon-arrow-down"></i></button>
               </div>
             </div>
 
