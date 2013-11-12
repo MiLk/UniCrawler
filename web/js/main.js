@@ -52,8 +52,8 @@ function SeedCtrl($scope, $http) {
 
   // Suppression
   $scope.deleteSeed = function(index) {
-    var postData = { url: $scope.seeds[index] };
-    $http.delete(api_url + '/seed', postData).success(function(data) {
+    var data = { url: $scope.seeds[index] };
+    $http.delete(api_url + '/seed', {params: data}).success(function(data) {
       $scope.$parent.error = false;
       $scope.seeds.splice(index, 1);
     }).error(function(data, status){
