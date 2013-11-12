@@ -43,12 +43,12 @@
         <div class="well" ng-controller="SeedCtrl">
           <h4>Seed</h4> <br>
           <div class="input-append" id="seed">
-            <input type="text" class="span3">
-            <button class="btn" type="button"><i class="icon-plus"></i></button>
+            <input type="text" class="span3" ng-model="newSeed">
+            <button class="btn" type="button" ng-click="addSeed()"><i class="icon-plus"></i></button>
           </div>
           <ul id="seed-list">
               <li ng-repeat="seed in seeds">
-                  {{ seed }}
+                  {{ seed }} <a ng-click="deleteSeed($index)">Delete</a>
               </li>
           </ul>
         </div>

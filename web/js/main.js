@@ -34,6 +34,31 @@ function SeedCtrl($scope, $http) {
     $scope.$parent.error = "Impossible de récupérer les seed";
     console.error(data);
   });
+  
+  // Ajout
+  $scope.addSeed = function() {
+    var postData = { url: $scope.newSeed };
+    $http.post(api_url + '/seed', postData).success(function(data) {
+      $scope.$parent.error = false;
+      $scope.seeds.push($scope.newSeed);
+      $scope.newSeed = "";
+    }).error(function(data, status){
+      $scope.$parent.error = "Impossible d'ajouter le seed";
+      console.error(data);      
+    });
+  };
+
+  // Suppression
+  $scope.deleteSeed = function(index) {
+    var postData = { url: $scope.seeds[index] };
+    $http.delete(api_url + '/seed', postData).success(function(data) {
+      $scope.$parent.error = false;
+      $scope.seeds.splice(index, 1);
+    }).error(function(data, status){
+      $scope.$parent.error = "Impossible de supprimer le seed";
+      console.error(data);      
+    });
+  };
 }
 
 // Profondeur
@@ -61,21 +86,6 @@ function FilterCtrl($scope, $http) {
 
 // ancien js
 if(0){
-  // ici on récupere l id du button
-  $('#seed button').on ("click", function() {
-    var val = $('#seed input').val(); // on recupere la valeur du champs
-    $.ajax({
-      type: 'POST',
-      url: api_url + '/seed',
-      crossDomain: true,
-      data: { url: val }, //equivalent a un tableau associatif
-      dataType: 'json',
-      timeout: 0,
-      success: function(data) {
-        $('#seed-list').append('<li>'+data.url+'</li>');
-      }
-    }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-  });
   // ici fonction pour start
   $('#start').on ("click", function() {
     $.ajax({
