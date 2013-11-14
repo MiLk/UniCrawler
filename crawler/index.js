@@ -8,16 +8,18 @@ var util = require('util')
   , redis = require('redis')
   , crypto = require('crypto')
   , EventEmitter = require('events').EventEmitter
+  , CONFIG = require('config')
   , events = new EventEmitter()
   , is_running = false
   , config = {}
+  , collections = require('./lib/collections')
   ;
 
 // Connect to the redis database
-var client = redis.createClient(6379, '127.0.0.1', {
+var client = redis.createClient(CONFIG.redis.port, CONFIG.redis.address, {
   detect_buffers: true
 });
-var subscriber = redis.createClient(6379, '127.0.0.1', {
+var subscriber = redis.createClient(CONFIG.redis.port, CONFIG.redis.address, {
   detect_buffers: true
 });
 
@@ -162,6 +164,9 @@ function scrapp(url, depth, callback) {
       return callback();
     } else {
       util.log('Scrapp: ' + url + ' ('+depth+')');
+      collections.addNode({ url: url, depth: depth }, function(err) {
+        if(err) util.error(err);
+      });
       // Send a HTTP GET request
       request({ method: 'GET'
               , jar: false
@@ -301,17 +306,15 @@ events.on('stop', function() {
  */
 events.on('link_found', function(source, link, depth) {
   if(!link) return;
-  //util.log('Link found: ' + link.title + ' - ' + link.url);
-  events.emit('good_link_found', source, link);
-  events.emit('link_to_follow', source, link, depth);
+  var dst = resolve(source, link.url);
+  events.emit('good_link_found', source, dst, depth);
+  events.emit('link_to_follow', source, dst, depth);
 });
 
 // Add all link to the working list
 // Link will be scrapped
-events.on('link_to_follow', function(source, link, depth) {
+events.on('link_to_follow', function(source, dst, depth) {
   if(is_running) {
-    var dst = resolve(source, link.url);
-    //util.log(source + ' -> ' + link.url + ' : ' + dst);
     client.rpush('working',dst, depth, function(err, reply) {
       if(err) util.error('link_to_follow error: ' + err);
     });
@@ -320,10 +323,11 @@ events.on('link_to_follow', function(source, link, depth) {
 
 // Store the link between source and destination
 // Useful to export to gephi
-events.on('good_link_found', function(source,link) {
+events.on('good_link_found', function(source, dst, depth) {
+  collections.addLink(source,dst);
   client.hget('encoded_url', source, function(err, encrypted_url) {
     if(err) util.error('good_link_found error: ' + err);
-    else client.rpush('links_'+encrypted_url,resolve(source, link.url));
+    else client.rpush('links_'+encrypted_url, dst);
   });
 });
 
