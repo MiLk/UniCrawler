@@ -2,9 +2,11 @@ var redis = require('redis')
   , _ = require('underscore')._
   , async = require('async')
   , read = require('./read')
+  , collections = require('./lib/collections')
+  , config = require('config')
   ;
 
-var client = redis.createClient(6379, '127.0.0.1', {
+var client = redis.createClient(config.redis.port, config.redis.address, {
   detect_buffers: true
 });
 
@@ -157,6 +159,21 @@ function getKeywords(req, res, next) {
   });
 }
 
+function getResults(req, res, next) {
+  res.writeHead(200, {'content-type' : 'application/jsonstream'});
+  collections.findNodes(function(cursor) {
+    var stream = cursor.stream();
+    stream.on('data', function(node) {
+      console.log('Object');
+      res.write(JSON.stringify(node) + '\n');
+    });
+    stream.on('close', function() {
+      console.log('Stream end');
+      res.end();
+    });
+  });
+}
+
 module.exports = {
   getState: getState,
   postStart: postStart,
@@ -169,7 +186,8 @@ module.exports = {
   getDepth: getDepth,
   postDepth: postDepth,
   getCsv: getCsv,
-  getKeywords: getKeywords
+  getKeywords: getKeywords,
+  getResults: getResults
 };
 
 client.on('ready', function(){

@@ -204,6 +204,7 @@ swagger.addPost({
 
 server.get('/output.csv', routes.getCsv);
 server.get('/keywords.csv', routes.getKeywords);
+server.get('/results.json', routes.getResults);
 
 swagger.configureSwaggerPaths("", "/api-docs", "");
 swagger.configure("http://ic05-api.emilienkenler.com", "0.1");
