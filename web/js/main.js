@@ -187,4 +187,17 @@ $(document).ready(function(){
       }
     }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
   });
+  $('#getResults').on('click', function() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+      if (this.readyState > 2)
+      {
+        var partial_response = this.responseText;
+        console.log('Stream');
+        console.log(partial_response.split("\n"));
+      }
+    };
+    xhr.open('GET',api_url + '/results.json',true);
+    xhr.send();
+  });
 });
