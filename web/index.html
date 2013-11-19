@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html ng-app>
 <head>
   <title>UniCrawler</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
   <link href="css/bootstrap-responsive.min.css" rel="stylesheet" media="screen">
-  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link href="css/main.css" rel="stylesheet" media="screen">
 </head>
-<body>
+<body ng-controller="GlobalCtrl">
   <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="navbar-inner">
       <div class="container">
@@ -30,42 +31,55 @@
     </div>
   </div>
   <div class="container" style="padding-top: 60px;">
+    <div class="row ng-cloak" ng-show="error">
+      <div class="span12">
+        <div class="alert alert-error">
+          {{ error }}
+        </div>
+      </div>
+    </div>
+    
     <div class="row">
       <div class="span4">
-        <div class="well">
+        <div class="well" ng-controller="SeedCtrl">
           <h4>Seed</h4> <br>
-          <div class="input-append" id="seed">
-            <input type="text" class="span3">
-            <button class="btn" type="button"><i class="icon-plus"></i></button>
-          </div>
+          <form ng-submit="addSeed()">
+            <div class="input-append">
+              <input type="text" class="span3" ng-model="newSeed" placeholder="http://www.example.com">
+              <button class="btn" type="button" ng-click="addSeed()"><i class="icon-plus"></i></button>
+            </div>
+          </form>
           <ul id="seed-list">
+              <li ng-repeat="seed in seeds">
+                  {{ seed }} <a ng-click="deleteSeed($index)" href=""><i class="icon-remove"></i></a></a>
+              </li>
           </ul>
         </div>
       </div>
       
       <div class="span4">
-        <div class="well">
-          <h4>Contrôle</h4><br> 
+        <div class="well" ng-controller="ButtonsCtrl">
+          <h4>Contrôle</h4>
           <div class="btn-group">
-            <button class="btn btn-success" id="start"><i class="icon-play
+            <button class="btn btn-success" ng-click="startCrawl()"><i class="icon-play
             icon-white"></i>&nbsp;&nbsp;Start</button>
-            <button class="btn btn-danger" id="stop"><i class="icon-stop
+            <button class="btn btn-danger" ng-click="stopCrawl()"><i class="icon-stop
             icon-white"></i>&nbsp;&nbsp;Stop</button>
-            <button class="btn btn-warning" id="reset"><i class="icon-trash
+            <button class="btn btn-warning" ng-click="resetCrawl()"><i class="icon-trash
             icon-white"></i>&nbsp;&nbsp;Reset</button>    
           </div>
           <br>
           <br />
-          <strong>Réinitialiser les données:</strong>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="reset_data" checked="checked"> <br>
+          <label><strong>Réinitialiser les données</strong> <input type="checkbox" ng-model="resetData"></label><br>
           <em>En cochant cette case, les données récoltées par le crawler seront effacées (noeuds, liens, mots-clés).</em><br />
           <br />
-          <strong>Réinitialiser la configuration:</strong>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="reset_setting"> <br>
+          <label><strong>Réinitialiser la configuration</strong> <input type="checkbox" ng-model="resetSettings"></label><br>
           <em>En cochant cette case, tous les paramètres seront effacés (seeds, filtres, profondeur, ...).</em>          
         </div>
-        <div class="well">
+        <div class="well" ng-controller="StatusCtrl">
           <h4>Etat du serveur</h4><br />
-          Noeuds correspondants trouvés: <span id="visited">0</span><br />
-          Noeuds à explorer: <span id="working">0</span><br />
+          Noeuds correspondants trouvés: {{ visited }}<br />
+          Noeuds à explorer: {{ working }}<br />
           <br />
           <a href="http://ic05-api.emilienkenler.com/output.csv" class="btn btn-primary"><i class="icon-download icon-white"></i>&nbsp;&nbsp;Download Links .CSV</a>
           <a href="http://ic05-api.emilienkenler.com/keywords.csv" class="btn btn-primary"><i class="icon-download icon-white"></i>&nbsp;&nbsp;Download Keywords .CSV</a>
@@ -74,51 +88,67 @@
       </div>
         
       <div class="span4">
-        <div class="well">
+        <div class="well" ng-controller="DepthCtrl">
           <h4>Réglages</h4><br>
-          <form class="form-horizontal">
             <span class="help-inline">Profondeur: </span><br>
             <div class="control-group">
-              <div class="input-append" id="profondeur"> 
-                <input class="span3" type="text">
-                <button class="btn" type="button" ><i class="icon-arrow-down"></i></button>
+              <div class="input-append" id="profondeur">
+                <input class="span3" type="text" value="" ng-model="depth">
+                <button class="btn" type="button" ng-click="DepthSet()"><i class="icon-arrow-down"></i></button>
               </div>
             </div>
 
             <h4>Filtres</h4>
-            <div class="control-group" id="url">
-              <label for="id_url">Adresse</label>
-              <div class="input-append">
-                <input class="span3" id="id_url" type="text">
-                <button class="btn" type="button"><i class="icon-plus"></i></button>
-              </div>
-              <span class="help-inline">Seuls les pages dont l'URL contient au moins un des mots clés suivants seront traitées.</span>
-            </div>
-            <ul id="url-list" class="well">
-            </ul>
+            <div ng-controller="FilterCtrl">
+                <div class="control-group">
+                  <label for="id_url">Adresse</label>
+                  <div class="input-append">
+                    <form ng-submit="addFilter('url')">
+                    <input class="span3" type="text" id="id_url" ng-model="newFilterData.url">
+                    <button class="btn" type="submit"><i class="icon-plus"></i></button>
+                    </form>
+                  </div>
+                  <span class="help-inline">Seuls les pages dont l'URL contient au moins un des mots clés suivants seront traitées.</span>
+                </div>
+              <ul class="well">
+                  <li ng-repeat="url in filters.url">
+                      {{ url }} <a ng-click="deleteFilter('url', $index)" href=""><i class="icon-remove"></i></a></a>
+                  </li>
+              </ul>
             
-            <div class="control-group" id="title">
-              <label for="id_title">Titre</label>
-              <div class="input-append">
-                <input class="span3" id="id_title" type="text">
-               <button class="btn" type="button"><i class="icon-plus"></i></button>
-              </div>
-              <span class="help-inline">Seuls les pages dont le titre contient au moins un des mots clés suivants seront traitées.</span>
-            </div>
-            <ul id="title-list" class="well">
-            </ul>
+                <div class="control-group">
+                  <label for="id_title">Titre</label>
+                  <div class="input-append">
+                    <form ng-submit="addFilter('title')">
             
-            <div class="control-group" id="body">
-              <label for="id_body">Contenu</label>
-              <div class="input-append">
-               <input class="span3" id="id_body" type="text">
-               <button class="btn" type="button"><i class="icon-plus"></i></button>
-             </div>
-             <span class="help-inline">Seuls les pages dont le contenu contient au moins un des mots clés suivants seront traitées.</span>
+                    <input class="span3" id="id_title" type="text" ng-model="newFilterData.title">
+                   <button class="btn" type="submit"><i class="icon-plus"></i></button>
+                 </form>
+                  </div>
+                  <span class="help-inline">Seuls les pages dont le titre contient au moins un des mots clés suivants seront traitées.</span>
+                </div>
+                <ul class="well">
+                    <li ng-repeat="title in filters.title">
+                        {{ title }} <a ng-click="deleteFilter('title', $index)" href=""><i class="icon-remove"></i></a></a>
+                    </li>
+                </ul>
+            
+                <div class="control-group">
+                  <label for="id_body">Contenu</label>
+                  <div class="input-append">
+                    <form ng-submit="addFilter('body')">
+                   <input class="span3" id="id_body" type="text" ng-model="newFilterData.body">
+                   <button class="btn" type="submit"><i class="icon-plus"></i></button>
+                 </form>
+                 </div>
+                 <span class="help-inline">Seuls les pages dont le contenu contient au moins un des mots clés suivants seront traitées.</span>
+                </div>
+                <ul class="well">
+                    <li ng-repeat="body in filters.body">
+                        {{ body }} <a ng-click="deleteFilter('body', $index)" href=""><i class="icon-remove"></i></a></a>
+                    </li>
+                </ul>
             </div>
-            <ul id="body-list" class="well">
-            </ul>
-          </form>
         </div>
       </div>
       
@@ -126,8 +156,9 @@
       
   <script src="http://code.jquery.com/jquery.js"></script>
   <script src="js/bootstrap.min.js"></script>
+  <script src="js/angular.min.js"></script>
+  <script src="js/config.js"></script>
   <script src="js/main.js"></script>
-  
 </body>
 
 </html>

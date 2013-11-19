@@ -122,6 +122,24 @@ swagger.addPost({
   },
   'action': routes.postSeed
 });
+swagger.addDelete({
+  'spec': {
+    "description": "Delete a seed in seed list",
+    "summary": "Delete a seed in seed list",
+    "path": "/seed",
+    "method": "DELETE",
+    "params": [{
+      "paramType": "body",
+      "name": "url",
+      "description": "Url to delete from seed",
+      "dataType": "string",
+      "required": true
+    }],
+    "errorResponses": [],
+    "nickname": "deleteSeed"
+  },
+  'action': routes.deleteSeed
+});
 
 swagger.addGet({
   'spec': {

@@ -1,5 +1,5 @@
-﻿
-output.csv
+﻿output.csv
 node_modules/
 npm-debug.log
 */config/runtime.json
+web/js/config.js

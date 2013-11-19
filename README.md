@@ -21,4 +21,4 @@ You can start more agent to speed up the process.
 
 ## Web
 
-It's the WebUI.
+It's the WebUI. Don't forget to copy `config.dist.js` to `config.js` and setup the URL to you API.
