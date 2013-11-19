@@ -88,7 +88,6 @@
       <div class="span4">
         <div class="well" ng-controller="DepthCtrl">
           <h4>Réglages</h4><br>
-          <form class="form-horizontal">
             <span class="help-inline">Profondeur: </span><br>
             <div class="control-group">
               <div class="input-append" id="profondeur">
@@ -99,51 +98,55 @@
 
             <h4>Filtres</h4>
             <div ng-controller="FilterCtrl">
-              <form ng-submit="addFilterUrl()">
                 <div class="control-group">
                   <label for="id_url">Adresse</label>
                   <div class="input-append">
-                    <input class="span3" type="text" id="id_url" ng-model="newFilterUrl">
-                    <button class="btn" type="button" ng-click="addFilterUrl()"><i class="icon-plus"></i></button>
+                    <form ng-submit="addFilter('url')">
+                    <input class="span3" type="text" id="id_url" ng-model="newFilterData.url">
+                    <button class="btn" type="submit"><i class="icon-plus"></i></button>
+                    </form>
                   </div>
                   <span class="help-inline">Seuls les pages dont l'URL contient au moins un des mots clés suivants seront traitées.</span>
                 </div>
-              </form>
               <ul class="well">
                   <li ng-repeat="url in filters.url">
-                      {{ url }}
+                      {{ url }} <a ng-click="deleteFilter('url', $index)" href=""><i class="icon-remove"></i></a></a>
                   </li>
               </ul>
             
-                <div class="control-group" id="title">
+                <div class="control-group">
                   <label for="id_title">Titre</label>
                   <div class="input-append">
-                    <input class="span3" id="id_title" type="text">
-                   <button class="btn" type="button"><i class="icon-plus"></i></button>
+                    <form ng-submit="addFilter('title')">
+            
+                    <input class="span3" id="id_title" type="text" ng-model="newFilterData.title">
+                   <button class="btn" type="submit"><i class="icon-plus"></i></button>
+                 </form>
                   </div>
                   <span class="help-inline">Seuls les pages dont le titre contient au moins un des mots clés suivants seront traitées.</span>
                 </div>
                 <ul class="well">
                     <li ng-repeat="title in filters.title">
-                        {{ title }}
+                        {{ title }} <a ng-click="deleteFilter('title', $index)" href=""><i class="icon-remove"></i></a></a>
                     </li>
                 </ul>
             
-                <div class="control-group" id="body">
+                <div class="control-group">
                   <label for="id_body">Contenu</label>
                   <div class="input-append">
-                   <input class="span3" id="id_body" type="text">
-                   <button class="btn" type="button"><i class="icon-plus"></i></button>
+                    <form ng-submit="addFilter('body')">
+                   <input class="span3" id="id_body" type="text" ng-model="newFilterData.body">
+                   <button class="btn" type="submit"><i class="icon-plus"></i></button>
+                 </form>
                  </div>
                  <span class="help-inline">Seuls les pages dont le contenu contient au moins un des mots clés suivants seront traitées.</span>
                 </div>
                 <ul class="well">
                     <li ng-repeat="body in filters.body">
-                        {{ body }}
+                        {{ body }} <a ng-click="deleteFilter('body', $index)" href=""><i class="icon-remove"></i></a></a>
                     </li>
                 </ul>
             </div>
-          </form>
         </div>
       </div>
       
