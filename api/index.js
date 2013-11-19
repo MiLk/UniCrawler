@@ -186,6 +186,38 @@ swagger.addPost({
   },
   'action': routes.postFilter
 });
+swagger.addDelete({
+  'spec': {
+    "description": "Delete a filter",
+    "summary": "Delete a filter",
+    "path": "/filter",
+    "method": "DELETE",
+    "params": [{
+      "paramType": "body",
+      "name": "keyword",
+      "description": "Keyword to remove from the filter",
+      "dataType": "string",
+      "required": true
+    },{
+      "paramType": "body",
+      "name": "target",
+      "description": "Target of the keyword to remove: Page Title, URL, Body",
+      "dataType": "string",
+      "required": true,
+      "allowableValues": {
+        "valueType": "LIST",
+        "values": [
+          "title",
+          "url",
+          "body"
+        ]
+      }
+    }],
+    "errorResponses": [],
+    "nickname": "deleteSeed"
+  },
+  'action': routes.deleteFilter
+});
 
 swagger.addGet({
   'spec': {
