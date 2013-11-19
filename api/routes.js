@@ -136,6 +136,16 @@ function postFilter(req, res, next) {
   client.sadd('filter_'+target,keyword);
 }
 
+function deleteFilter(req, res, next) {
+  res.set('Access-Control-Allow-Origin', '*');
+  var keyword = req.query.keyword
+    , target = req.query.target;
+  if(!keyword) return next('You must specify a keyword for the filter.');
+  if(!target) return next('You must specify a target for the filter.');
+  if(-1 == _.indexOf(['title','url','body'],target)) return next('You must specify a valid target for the filter.');
+  res.send(201,{ keyword: keyword, target: target });
+  client.srem('filter_'+target,keyword);
+}
 
 function getDepth(req, res, next) {
   res.set('Access-Control-Allow-Origin', '*');
@@ -192,6 +202,7 @@ module.exports = {
   deleteSeed: deleteSeed,
   getFilter: getFilter,
   postFilter: postFilter,
+  deleteFilter: deleteFilter,
   getDepth: getDepth,
   postDepth: postDepth,
   getCsv: getCsv,
