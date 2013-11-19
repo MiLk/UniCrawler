@@ -1,4 +1,4 @@
-var api_url = 'http://ic05-api.emilienkenler.com';
+var api_url = 'http://localhost:8081';
 
 function GlobalCtrl($scope) {
   $scope.error = false;
@@ -116,34 +116,35 @@ function FilterCtrl($scope, $http) {
   });
   
   // Add
-  $scope.addFilter = function(target, val) {
+  $scope.addFilter = function(target) {
+    var val = $scope.newFilterData[target];
     if(!val) return;
     var postData = { keyword: val, target: target };
     $http.post(api_url + '/filter', postData).success(function(data) {
       $scope.$parent.error = false;
       $scope.filters[target].push(val);
-      $scope.newSeed = "";
+      $scope.newFilterData[target] = "";
     }).error(function(data, status){
       $scope.$parent.error = "Impossible d'ajouter le " + target;
       console.error(data);      
     });
   };
   
-  // Add address
-  $scope.addFilterUrl = function() {
-    $scope.addFilter('url', $scope.newFilterUrl);
-  }
-
+  $scope.newFilterData = {
+    url: "",
+    title: "",
+    body: ""
+  };
+  
   // Delete
-  // TODO : method in API
   $scope.deleteFilter = function(target, index) {
-    var data = { url: $scope.filters[target][index] };
-    $http.delete(api_url + '/filter', {params: data}).success(function(data) {
+    var data = { keyword: $scope.filters[target][index], target: target };
+    $http.delete(api_url + '/filter', { params: data }).success(function(data) {
       $scope.$parent.error = false;
       $scope.filters[target].splice(index, 1);
     }).error(function(data, status){
       $scope.$parent.error = "Impossible de supprimer le " + target;
-      console.error(data);      
+      console.error(data);
     });
   };
 }
@@ -189,41 +190,4 @@ function ButtonsCtrl($scope, $http) {
       console.error(data);
     });
   };
-}
-
-
-// ancien js
-if(0){
-  // ici on récupere l id title
-  $('#title button').on ("click", function() {
-    var val = $('#title input').val(); // on recupere la valeur du champs
-    $.ajax({
-      type: 'POST',
-      url: api_url + '/filter',
-      crossDomain: true,
-      data: { keyword:val, target:'title'}, //equivalent a un tableau associatif
-      dataType: 'json',
-      timeout: 0,
-      success: function(data) {
-      $('#title-list').append('<li>'+val+'</li>');
-      $('#title input').val('');
-      }
-    }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-  });
-  // ici on récupere l id body
-  $('#body button').on ("click", function() {
-    var val = $('#body input').val(); // on recupere la valeur du champs
-    $.ajax({
-      type: 'POST',
-      url: api_url + '/filter',
-      crossDomain: true,
-      data: {  keyword:val, target:'body' }, //equivalent a un tableau associatif
-      dataType: 'json',
-      timeout: 0,
-      success: function(data) {
-        $('#body-list').append('<li>'+val+'</li>');
-        $('#body input').val('');
-      }
-    }).fail(function(jqXHR, textStatus) { console.log('Error: ' + textStatus); });
-  });
 }
