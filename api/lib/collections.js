@@ -8,4 +8,10 @@ collections.findNodes = function(cb) {
   return cb(cursor);
 };
 
+collections.dropNodes = function() {
+  mongodb.db.collection('nodes').drop(function(err) {
+    if(err) console.error(err);
+  });
+};
+
 module.exports = collections;

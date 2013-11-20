@@ -65,6 +65,7 @@ function postReset(req, res, next) {
       .del('encoded_url')
       .del('visited')
       ;
+    collections.dropNodes();
   }
   Multi.exec(function(err, replies) {
     if(err) return next(err);
