@@ -6,6 +6,12 @@ There are some different parts:
 - [Crawler](crawler/README.md)
 - Web
 
+## Requirements
+
+* [Node.js](http://nodejs.org/)
+* [Redis](http://redis.io/)
+* [MongoDB](http://www.mongodb.org/)
+
 ## API
 
 The API allow you to configure and control the crawling process.
