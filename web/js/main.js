@@ -172,7 +172,7 @@ function ButtonsCtrl($scope, $http) {
   // Reset
   $scope.resetCrawl = function(index) {
     var type;
-    if($scope.resetData && $scope.restSettings) type = 0;
+    if($scope.resetData && $scope.resetSettings) type = 0;
     else if($scope.resetData && !$scope.resetSettings) type = 1;
     else if(!$scope.resetData && $scope.resetSettings) type = 2;
     else return;
