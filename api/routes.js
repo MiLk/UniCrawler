@@ -1,7 +1,6 @@
 var redis = require('redis')
   , _ = require('underscore')._
   , async = require('async')
-  , read = require('./read')
   , collections = require('./lib/collections')
   , config = require('config')
   ;
@@ -49,18 +48,6 @@ function postReset(req, res, next) {
       ;
   }
   if(type == 0 || type == 1) {
-    client.keys('links_*', function(err, links) {
-      if(err) return next(err);
-      _.each(links, function(link) {
-        client.del(link);
-      });
-    });
-    client.keys('keywords_*', function(err, links) {
-      if(err) return next(err);
-      _.each(links, function(link) {
-        client.del(link);
-      });
-    });
     Multi
       .del('encoded_url')
       .del('visited')
@@ -164,30 +151,14 @@ function postDepth(req, res, next) {
   client.set('depth',depth);
 }
 
-function getCsv(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
-  read.read(client, function() {
-    res.sendfile(__dirname + '/output.csv');
-  });
-}
-
-function getKeywords(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
-  read.keywords(client, function() {
-    res.sendfile(__dirname + '/output.csv');
-  });
-}
-
 function getResults(req, res, next) {
   res.writeHead(200, {'content-type' : 'application/jsonstream'});
   collections.findNodes(function(cursor) {
     var stream = cursor.stream();
     stream.on('data', function(node) {
-      console.log('Object');
       res.write(JSON.stringify(node) + '\n');
     });
     stream.on('close', function() {
-      console.log('Stream end');
       res.end();
     });
   });
@@ -206,8 +177,6 @@ module.exports = {
   deleteFilter: deleteFilter,
   getDepth: getDepth,
   postDepth: postDepth,
-  getCsv: getCsv,
-  getKeywords: getKeywords,
   getResults: getResults
 };
 

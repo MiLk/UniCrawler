@@ -251,9 +251,6 @@ swagger.addPost({
   'action': routes.postDepth
 });
 
-
-server.get('/output.csv', routes.getCsv);
-server.get('/keywords.csv', routes.getKeywords);
 server.get('/results.json', routes.getResults);
 
 swagger.configureSwaggerPaths("", "/api-docs", "");
