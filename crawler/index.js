@@ -73,8 +73,8 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
             var found_title_keyword = _.reduce(config.title, function(memo, keyword) {
               if(title.search(new RegExp(keyword,"i")) != -1) {
                 memo.push(keyword);
-                return memo;
               }
+              return memo;
             }, []);
           }
         }
@@ -119,8 +119,8 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
                 var found_url_keyword = _.reduce(config.url, function(memo, keyword) {
                   if(link.url.toLowerCase().search(keyword) != -1) {
                     memo.push(keyword);
-                    return memo;
                   }
+                  return memo;
                 }, []);
               }
               if ( config.url.length == 0
