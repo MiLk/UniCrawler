@@ -2,14 +2,24 @@ var mongodb = require('./mongodb');
 
 var collections = {};
 
+function getNextSequence(name, callback) {
+  var r = mongodb.db.collection('counters').findAndModify({
+    _id: name
+  }, {}, {
+    "$inc": { seq: 1 }
+  }, { 'new': true }, callback);
+};
+
 collections.addNode = function(node, cb) {
   if(!node.url) console.error('No url for this node.');
   if(!node.depth && node.depth !== 0) console.error('No depth for this node ('+node.url+').');
-  mongodb.db.collection('nodes').update({
-    _id: node.url
-  }, {
-    "$set": { depth: node.depth }
-  }, { upsert: true }, cb);
+  getNextSequence('nodes', function(err, obj) {
+    mongodb.db.collection('nodes').update({
+      _id: node.url
+    }, {
+      "$set": { depth: node.depth, seqId: obj.seq }
+    }, { upsert: true }, cb);
+  });
 };
 
 collections.addLink = function(source, dst) {

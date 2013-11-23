@@ -153,14 +153,33 @@ function postDepth(req, res, next) {
 
 function getResults(req, res, next) {
   res.writeHead(200, {'content-type' : 'application/jsonstream'});
-  collections.findNodes(function(cursor) {
-    var stream = cursor.stream();
-    stream.on('data', function(node) {
-      res.write(JSON.stringify(node) + '\n');
+  var query = {};
+  var lastSeqId = 0;
+  var timeout = null;
+
+  function onData(node) {
+    lastSeqId = node.seqId;
+    res.write(JSON.stringify(node) + '\n');
+  };
+
+  function onClose() {
+    query = { 'seqId': { '$gt': lastSeqId } };
+    timeout = setTimeout(getLastResults, 5000);
+  }
+
+  function getLastResults() {
+    collections.findNodes(query,function(cursor) {
+      var stream = cursor.stream();
+      stream.on('data', onData);
+      stream.on('close', onClose);
     });
-    stream.on('close', function() {
-      res.end();
-    });
+  }
+
+  process.nextTick(getLastResults);
+
+  req.on('close', function() {
+    clearTimeout(timeout);
+    res.end();
   });
 }
 
