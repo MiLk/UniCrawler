@@ -21,7 +21,7 @@ function StatusCtrl($scope, $http, $timeout) {
   // Read with polling
   (function poll(){
     if(!$scope.retry){
-      $scope.retry = 500; 
+      $scope.retry = 1000; 
     }
     $http.get(api_url + '/state').success(function(data) {
       $scope.$parent.error = false;
