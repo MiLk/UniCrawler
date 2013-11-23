@@ -188,3 +188,76 @@ function ButtonsCtrl($scope, $http) {
     });
   };
 }
+
+String.prototype.hashColor = function(){
+  var hash = 0;
+  if (this.length == 0) return hash;
+  for (i = 0; i < this.length; i++) {
+      char = this.charCodeAt(i);
+      hash = ((hash<<5)-hash)+char;
+      hash = hash & hash;
+  }
+  if(hash < 0) hash *= -1;
+  hash %= 16777215;
+  hash = hash.toString(16);
+  return hash.length < 6 ? new Array(6 - hash.length + 1).join('0') + hash : hash;
+}
+
+var sigInst;
+
+function SigmaCtrl($scope, $http, $timeout) {
+  // Instanciate sigma.js and customize it :
+  sigInst = sigma.init(document.getElementById('sigma')).drawingProperties({
+    defaultLabelColor: '#fff',
+    defaultLabelSize: 14,
+    defaultLabelBGColor: '#fff',
+    defaultLabelHoverColor: '#000',
+    labelThreshold: 6,
+    defaultEdgeType: 'curve'
+  }).graphProperties({
+    minNodeSize: 0.5,
+    maxNodeSize: 5,
+    minEdgeSize: 1,
+    maxEdgeSize: 1
+  }).mouseProperties({
+    maxRatio: 4
+  });
+  
+  $http.get('test-data.json').success(function(data) {
+    $scope.$parent.error = false;
+    //$scope.jsonData = data;
+    
+    // Create all the nodes
+    var nodeList = {};
+    for(var node in data){
+      nodeList[data[node]._id] = 1;
+      var l = document.createElement("a");
+      l.href = data[node]._id;
+      sigInst.addNode(data[node]._id, {
+        label: l.href,
+        x: Math.random(),
+        y: Math.random(),
+        color: l.hostname.hashColor(),
+        size: 0.8
+      });
+    }    
+    
+    // Create the edges
+    var i = 0;
+    for(var node in data){
+      for(var link in data[node].links){
+        if(nodeList[data[node].links[link]]){
+          sigInst.addEdge(i++, data[node]._id, data[node].links[link]);          
+        }
+      }
+    }
+    
+    /*sigInst.startForceAtlas2();
+    $timeout(sigInst.stopForceAtlas2, 7000);*/
+    
+  }).error(function(data, status){
+    $scope.$parent.error = "Impossible de récupérer les données";
+    console.error(data);
+  });
+}
+    
