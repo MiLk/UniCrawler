@@ -22,6 +22,7 @@ function GlobalCtrl($scope) {
   // Reset all the GUI
   $scope.resetData = function(){
     $scope.sigInst.emptyGraph();
+    $scope.sigInst.draw();
   };
 }
 
