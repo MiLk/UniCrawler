@@ -27,12 +27,12 @@
       </div>
     </div>
   </div>
-  
+
   <div class="row sigma-parent" id="sigma-parent" ng-controller="SigmaCtrl">
     <div class="sigma-expand" id="sigma"></div>
   </div>
-  
-  <div class="container">  
+
+  <div class="container">
     <div class="row" id="controlbox">
       <div class="span5">
         <div class="well">
@@ -43,7 +43,7 @@
               </div>
             </div>
           </div>
-          
+
           <div ng-controller="StatusCtrl" id="status">
             <div class="btn-group">
               <button class="btn btn-success" ng-click="startCrawl()">
@@ -60,7 +60,7 @@
             Nœuds correspondants trouvés : <span class="ng-cloak">{{ visited }}</span><br />
             Nœuds à explorer : <span class="ng-cloak">{{ working }}</span>
           </div>
-          
+
           <div>
             <i class="icon-chevron-right" ng-show="!reglages"></i>
             <i class="icon-chevron-down ng-cloak" ng-show="reglages"></i>
@@ -107,7 +107,7 @@
                   {{ url }} <a ng-click="deleteFilter('url', $index)" href=""><i class="icon-remove"></i></a></a>
                 </li>
               </ul>
-          
+
               <div class="control-group">
                 <label for="id_title" class="help-inline">Titre</label>
                 <div class="input-append">
@@ -122,7 +122,7 @@
                   {{ title }} <a ng-click="deleteFilter('title', $index)" href=""><i class="icon-remove"></i></a>
                 </li>
               </ul>
-          
+
               <div class="control-group">
                 <label for="id_body" class="help-inline">Contenu</label>
                 <div class="input-append">
@@ -143,7 +143,7 @@
       </div><!-- end span4 -->
     </div><!-- end row-->
   </div> <!-- end container -->
-  
+
   <div id="toolbox" ng-controller="ToolboxCtrl">
     <div class="btn-group">
       <button class="btn btn-large" ng-click="zoom(.5)" data-toggle="tooltip" title="Zoom arrière"><i class="icon-zoom-out"></i></button>
@@ -151,7 +151,7 @@
       <button class="btn btn-large" ng-click="toggleForceAtlas()" ng-class="{active: forceAtlas}" data-toggle="tooltip" title="Force Atlas"><i class="icon-globe"></i></button>
     </div>
   </div>
-  
+
   <script src="http://code.jquery.com/jquery.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="js/angular.min.js"></script>

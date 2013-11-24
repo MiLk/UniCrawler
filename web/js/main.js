@@ -1,10 +1,10 @@
 function GlobalCtrl($scope) {
   $scope.error = false;
-  
+
   $('[data-toggle=tooltip]').tooltip({
     container: 'body'
   });
-  
+
   // Reset all the GUI
   $scope.resetApp = function(){
     // TODO This doesn't work, we need to refresh or something
@@ -25,7 +25,7 @@ function StatusCtrl($scope, $http, $timeout, $compile) {
   // Read with polling
   (function poll(){
     if(!$scope.retry){
-      $scope.retry = 1000; 
+      $scope.retry = 1000;
     }
     $http.get(api_url + '/state').success(function(data) {
       $scope.$parent.error = false;
@@ -39,7 +39,7 @@ function StatusCtrl($scope, $http, $timeout, $compile) {
       $timeout(poll, $scope.retry);
     });
   })();
-  
+
   // Start button
   $scope.startCrawl = function(index) {
     $http.post(api_url + '/start').success(function(data) {
@@ -49,7 +49,7 @@ function StatusCtrl($scope, $http, $timeout, $compile) {
       console.error(data);
     });
   };
-  
+
   // Stop button
   $scope.stopCrawl = function(index) {
     $http.post(api_url + '/stop').success(function(data) {
@@ -59,14 +59,14 @@ function StatusCtrl($scope, $http, $timeout, $compile) {
       console.error(data);
     });
   };
-  
+
   // Reset button
   $scope.popover = $('button[data-toggle=popover]').popover().on('shown', function(){
     var popover = $(this).parent().parent().find('.popover .popover-content');
     popover.html($compile(popover.html())($scope));
   });
   $('form[data-toggle=popover]').popover();
-  
+
   $scope.resetCrawl = function(index) {
     var type = -1;
     if($scope.resetData && $scope.resetSettings) type = 0;
@@ -89,20 +89,20 @@ function StatusCtrl($scope, $http, $timeout, $compile) {
 }
 
 // Graph control toolbox
-function ToolboxCtrl($scope) {  
+function ToolboxCtrl($scope) {
   // Zoom in/out buttons
   $scope.zoom = function(coef) {
     var a = $scope.$parent.sigInst._core;
     $scope.$parent.sigInst.zoomTo(a.domElements.nodes.width/2, a.domElements.nodes.height/2, a.mousecaptor.ratio * coef);
   };
-  
+
   // Force Atlas button
   $scope.forceAtlas = false;
   $scope.toggleForceAtlas = function() {
     if($scope.forceAtlas){
       $scope.$parent.sigInst.stopForceAtlas2();
     }
-    else { 
+    else {
       $scope.$parent.sigInst.startForceAtlas2();
     }
     $scope.forceAtlas = !$scope.forceAtlas;
@@ -119,7 +119,7 @@ function SeedCtrl($scope, $http) {
     $scope.$parent.error = "Impossible de récupérer les seed";
     console.error(data);
   });
-  
+
   // Add
   $scope.addSeed = function() {
     if(!$scope.newSeed) return;
@@ -133,7 +133,7 @@ function SeedCtrl($scope, $http) {
       $scope.newSeed = "";
     }).error(function(data, status){
       $scope.$parent.error = "Impossible d'ajouter le seed";
-      console.error(data);      
+      console.error(data);
     });
   };
 
@@ -145,7 +145,7 @@ function SeedCtrl($scope, $http) {
       $scope.seeds.splice(index, 1);
     }).error(function(data, status){
       $scope.$parent.error = "Impossible de supprimer le seed";
-      console.error(data);      
+      console.error(data);
     });
   };
 }
@@ -160,7 +160,7 @@ function DepthCtrl($scope, $http) {
     $scope.$parent.error = "Impossible de récupérer la profondeur";
     console.error(data);
   });
-  
+
   // Save
   $scope.DepthSet = function(){
     var postData = { depth: $scope.depth };
@@ -184,7 +184,7 @@ function FilterCtrl($scope, $http) {
     $scope.$parent.error = "Impossible de récupérer les filtres";
     console.error(data);
   });
-  
+
   // Add
   $scope.addFilter = function(target) {
     var val = $scope.newFilterData[target];
@@ -196,16 +196,16 @@ function FilterCtrl($scope, $http) {
       $scope.newFilterData[target] = "";
     }).error(function(data, status){
       $scope.$parent.error = "Impossible d'ajouter le " + target;
-      console.error(data);      
+      console.error(data);
     });
   };
-  
+
   $scope.newFilterData = {
     url: "",
     title: "",
     body: ""
   };
-  
+
   // Delete
   $scope.deleteFilter = function(target, index) {
     var data = { keyword: $scope.filters[target][index], target: target };
@@ -251,11 +251,11 @@ function SigmaCtrl($scope, $http, $timeout) {
     minRatio: 0.75, // How far can we zoom out?
     maxRatio: 20, // How far can we zoom in?
   });
-  
+
   $http.get('test-data.json').success(function(data) {
     $scope.$parent.error = false;
     //$scope.jsonData = data;
-    
+
     // Create all the nodes
     var nodeList = {};
     for(var node in data){
@@ -269,14 +269,14 @@ function SigmaCtrl($scope, $http, $timeout) {
         color: l.hostname.hashColor(),
         size: 0.8
       });
-    }    
-    
+    }
+
     // Create the edges
     var i = 0;
     for(var node in data){
       for(var link in data[node].links){
         if(nodeList[data[node].links[link]]){
-          $scope.$parent.sigInst.addEdge(i++, data[node]._id, data[node].links[link]);          
+          $scope.$parent.sigInst.addEdge(i++, data[node]._id, data[node].links[link]);
         }
       }
     }
@@ -328,4 +328,4 @@ function SigmaCtrl($scope, $http, $timeout) {
     console.error(data);
   });
 }
-    
+
