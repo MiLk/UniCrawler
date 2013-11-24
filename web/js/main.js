@@ -1,6 +1,10 @@
 function GlobalCtrl($scope) {
   $scope.error = false;
   
+  $('[data-toggle=tooltip]').tooltip({
+    container: 'body'
+  });
+  
   // Reset all the GUI
   $scope.resetApp = function(){
     // TODO This doesn't work, we need to refresh or something
@@ -30,7 +34,7 @@ function StatusCtrl($scope, $http, $timeout, $compile) {
       $timeout(poll, $scope.retry);
     }).error(function(data, status){
       $scope.$parent.error = "Impossible de récupérer l'état";
-      console.error(data);
+      console.error("Cannot get status:", data);
       $scope.retry *= 2;
       $timeout(poll, $scope.retry);
     });
@@ -81,6 +85,27 @@ function StatusCtrl($scope, $http, $timeout, $compile) {
       });
     }
     $scope.popover.popover('hide');
+  };
+}
+
+// Graph control toolbox
+function ToolboxCtrl($scope) {  
+  // Zoom in/out buttons
+  $scope.zoom = function(coef) {
+    var a = $scope.$parent.sigInst._core;
+    $scope.$parent.sigInst.zoomTo(a.domElements.nodes.width/2, a.domElements.nodes.height/2, a.mousecaptor.ratio * coef);
+  };
+  
+  // Force Atlas button
+  $scope.forceAtlas = false;
+  $scope.toggleForceAtlas = function() {
+    if($scope.forceAtlas){
+      $scope.$parent.sigInst.stopForceAtlas2();
+    }
+    else { 
+      $scope.$parent.sigInst.startForceAtlas2();
+    }
+    $scope.forceAtlas = !$scope.forceAtlas;
   };
 }
 
@@ -208,11 +233,9 @@ String.prototype.hashColor = function(){
   return hash.length < 6 ? new Array(6 - hash.length + 1).join('0') + hash : hash;
 }
 
-var sigInst;
-
 function SigmaCtrl($scope, $http, $timeout) {
   // Instanciate sigma.js and customize it :
-  sigInst = sigma.init(document.getElementById('sigma')).drawingProperties({
+  $scope.$parent.sigInst = sigma.init(document.getElementById('sigma')).drawingProperties({
     defaultLabelColor: '#fff',
     defaultLabelSize: 14,
     defaultLabelBGColor: '#fff',
@@ -225,7 +248,8 @@ function SigmaCtrl($scope, $http, $timeout) {
     minEdgeSize: 1,
     maxEdgeSize: 1
   }).mouseProperties({
-    maxRatio: 4
+    minRatio: 0.75, // How far can we zoom out?
+    maxRatio: 20, // How far can we zoom in?
   });
   
   $http.get('test-data.json').success(function(data) {
@@ -238,7 +262,7 @@ function SigmaCtrl($scope, $http, $timeout) {
       nodeList[data[node]._id] = 1;
       var l = document.createElement("a");
       l.href = data[node]._id;
-      sigInst.addNode(data[node]._id, {
+      $scope.$parent.sigInst.addNode(data[node]._id, {
         label: l.href,
         x: Math.random(),
         y: Math.random(),
@@ -252,16 +276,12 @@ function SigmaCtrl($scope, $http, $timeout) {
     for(var node in data){
       for(var link in data[node].links){
         if(nodeList[data[node].links[link]]){
-          sigInst.addEdge(i++, data[node]._id, data[node].links[link]);          
+          $scope.$parent.sigInst.addEdge(i++, data[node]._id, data[node].links[link]);          
         }
       }
     }
     
-    sigInst.draw();
-    
-    /*sigInst.startForceAtlas2();
-    $timeout(sigInst.stopForceAtlas2, 7000);*/
-    
+    $scope.$parent.sigInst.draw();    
   }).error(function(data, status){
     $scope.$parent.error = "Impossible de récupérer les données";
     console.error(data);

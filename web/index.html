@@ -2,9 +2,7 @@
 <html ng-app>
 <head>
   <title>UniCrawler</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
-  <link href="css/bootstrap-responsive.min.css" rel="stylesheet" media="screen">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <link href="css/main.css" rel="stylesheet" media="screen">
 </head>
@@ -29,18 +27,23 @@
       </div>
     </div>
   </div>
-  <div class="container" style="padding-top: 60px;">
-    <div class="row ng-cloak" ng-show="error">
-      <div class="span12">
-        <div class="alert alert-error">
-          {{ error }}
-        </div>
-      </div>
-    </div>
   
-    <div class="row">
-      <div class="span4">
+  <div class="row sigma-parent" id="sigma-parent" ng-controller="SigmaCtrl">
+    <div class="sigma-expand" id="sigma"></div>
+  </div>
+  
+  <div class="container">  
+    <div class="row" id="controlbox">
+      <div class="span5">
         <div class="well">
+          <div class="row ng-cloak" ng-show="error">
+            <div class="span12">
+              <div class="alert alert-error">
+                {{ error }}
+              </div>
+            </div>
+          </div>
+          
           <div ng-controller="StatusCtrl" id="status">
             <div class="btn-group">
               <button class="btn btn-success" ng-click="startCrawl()">
@@ -54,8 +57,8 @@
               </button>
             </div>
             <h4>État du serveur</h4>
-            Noeuds correspondants trouvés : <span class="ng-cloak">{{ visited }}</span><br />
-            Noeuds à explorer : <span class="ng-cloak">{{ working }}</span>
+            Nœuds correspondants trouvés : <span class="ng-cloak">{{ visited }}</span><br />
+            Nœuds à explorer : <span class="ng-cloak">{{ working }}</span>
           </div>
           
           <div>
@@ -86,70 +89,76 @@
                   <button class="btn" type="button" ng-click="DepthSet()"><i class="icon-arrow-down"></i></button>
                 </div>
               </div>
-
-              <div ng-controller="FilterCtrl">
-                <h4>Filtres</h4>
-                <div class="control-group">
-                  <label for="id_url" class="help-inline">Adresse</label>
-                  <div class="input-append">
-                    <form ng-submit="addFilter('url')" data-toggle="popover" title="" data-trigger="hover" data-content="Seules les pages dont l'URL contient au moins un de ces mots-clés seront traitées" data-original-title="Filtrer les URL" data-placement="right">
-                      <input class="span3" id="id_url" type="text" ng-model="newFilterData.url">
-                      <button class="btn" type="submit"><i class="icon-plus"></i></button>
-                    </form>
-                  </div>
-                </div>
-                <ul class="well" ng-show="filters.url.length">
-                  <li ng-repeat="url in filters.url" class="ng-cloak">
-                    {{ url }} <a ng-click="deleteFilter('url', $index)" href=""><i class="icon-remove"></i></a></a>
-                  </li>
-                </ul>
-            
-                <div class="control-group">
-                  <label for="id_title" class="help-inline">Titre</label>
-                  <div class="input-append">
-                    <form ng-submit="addFilter('title')" data-toggle="popover" title="" data-trigger="hover" data-content="Seules les pages dont le titre contient au moins un de ces mots-clés seront traitées" data-original-title="Filtrer le titre" data-placement="right">
-                      <input class="span3" id="id_title" type="text" ng-model="newFilterData.title">
-                      <button class="btn" type="submit"><i class="icon-plus"></i></button>
-                    </form>
-                  </div>
-                </div>
-                <ul class="well" ng-show="filters.title">
-                  <li ng-repeat="title in filters.title" class="ng-cloak">
-                    {{ title }} <a ng-click="deleteFilter('title', $index)" href=""><i class="icon-remove"></i></a>
-                  </li>
-                </ul>
-            
-                <div class="control-group">
-                  <label for="id_body" class="help-inline">Contenu</label>
-                  <div class="input-append">
-                    <form ng-submit="addFilter('body')" data-toggle="popover" title="" data-trigger="hover" data-content="Seules les pages dont le contenu contient au moins un de ces mots-clés seront traitées" data-original-title="Filtrer le contenu" data-placement="right">
-                      <input class="span3" id="id_body" type="text" ng-model="newFilterData.body">
-                      <button class="btn" type="submit"><i class="icon-plus"></i></button>
-                    </form>
-                  </div>
-                </div>
-                <ul class="well" ng-show="filters.body.length">
-                  <li ng-repeat="body in filters.body" class="ng-cloak">
-                    {{ body }} <a ng-click="deleteFilter('body', $index)" href=""><i class="icon-remove"></i></a>
-                  </li>
-                </ul>
-              </div>
             </div>
-          </div>
-        </div>
-      </div>
-      <div class="span8 sigma-parent" id="sigma-parent" ng-controller="SigmaCtrl">
-        <div class="sigma-expand" id="sigma"></div>
-      </div>
-    </div>
-      
-    <script src="http://code.jquery.com/jquery.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/angular.min.js"></script>
-    <script src="js/sigma.min.js"></script>
-    <script src="js/sigma.forceatlas2.js"></script>
-    <script src="js/config.js"></script>
-    <script src="js/main.js"></script>
-  </body>
 
-  </html>
+            <div ng-controller="FilterCtrl">
+              <h4>Filtres</h4>
+              <div class="control-group">
+                <label for="id_url" class="help-inline">Adresse</label>
+                <div class="input-append">
+                  <form ng-submit="addFilter('url')" data-toggle="popover" title="" data-trigger="hover" data-content="Seules les pages dont l'URL contient au moins un de ces mots-clés seront traitées" data-original-title="Filtrer les URL" data-placement="right">
+                    <input class="span3" id="id_url" type="text" ng-model="newFilterData.url">
+                    <button class="btn" type="submit"><i class="icon-plus"></i></button>
+                  </form>
+                </div>
+              </div>
+              <ul class="well" ng-show="filters.url.length">
+                <li ng-repeat="url in filters.url" class="ng-cloak">
+                  {{ url }} <a ng-click="deleteFilter('url', $index)" href=""><i class="icon-remove"></i></a></a>
+                </li>
+              </ul>
+          
+              <div class="control-group">
+                <label for="id_title" class="help-inline">Titre</label>
+                <div class="input-append">
+                  <form ng-submit="addFilter('title')" data-toggle="popover" title="" data-trigger="hover" data-content="Seules les pages dont le titre contient au moins un de ces mots-clés seront traitées" data-original-title="Filtrer le titre" data-placement="right">
+                    <input class="span3" id="id_title" type="text" ng-model="newFilterData.title">
+                    <button class="btn" type="submit"><i class="icon-plus"></i></button>
+                  </form>
+                </div>
+              </div>
+              <ul class="well" ng-show="filters.title">
+                <li ng-repeat="title in filters.title" class="ng-cloak">
+                  {{ title }} <a ng-click="deleteFilter('title', $index)" href=""><i class="icon-remove"></i></a>
+                </li>
+              </ul>
+          
+              <div class="control-group">
+                <label for="id_body" class="help-inline">Contenu</label>
+                <div class="input-append">
+                  <form ng-submit="addFilter('body')" data-toggle="popover" title="" data-trigger="hover" data-content="Seules les pages dont le contenu contient au moins un de ces mots-clés seront traitées" data-original-title="Filtrer le contenu" data-placement="right">
+                    <input class="span3" id="id_body" type="text" ng-model="newFilterData.body">
+                    <button class="btn" type="submit"><i class="icon-plus"></i></button>
+                  </form>
+                </div>
+              </div>
+              <ul class="well" ng-show="filters.body.length">
+                <li ng-repeat="body in filters.body" class="ng-cloak">
+                  {{ body }} <a ng-click="deleteFilter('body', $index)" href=""><i class="icon-remove"></i></a>
+                </li>
+              </ul>
+            </div><!-- end FilterCtrl-->
+          </div><!-- end reglages -->
+        </div><!-- end well -->
+      </div><!-- end span4 -->
+    </div><!-- end row-->
+  </div> <!-- end container -->
+  
+  <div id="toolbox" ng-controller="ToolboxCtrl">
+    <div class="btn-group">
+      <button class="btn btn-large" ng-click="zoom(.5)" data-toggle="tooltip" title="Zoom arrière"><i class="icon-zoom-out"></i></button>
+      <button class="btn btn-large" ng-click="zoom(1.5)" data-toggle="tooltip" title="Zoom avant"><i class="icon-zoom-in"></i></button>
+      <button class="btn btn-large" ng-click="toggleForceAtlas()" ng-class="{active: forceAtlas}" data-toggle="tooltip" title="Force Atlas"><i class="icon-globe"></i></button>
+    </div>
+  </div>
+  
+  <script src="http://code.jquery.com/jquery.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/angular.min.js"></script>
+  <script src="js/sigma.min.js"></script>
+  <script src="js/sigma.forceatlas2.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/main.js"></script>
+</body>
+
+</html>
