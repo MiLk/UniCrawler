@@ -40,97 +40,95 @@
   
     <div class="row">
       <div class="span4">
-        <div class="well" ng-controller="StatusCtrl" id="status">
-          <div class="btn-group">
-            <button class="btn btn-success" ng-click="startCrawl()">
-              <i class="icon-play icon-white"></i> Start
-            </button>
-            <button class="btn btn-danger" ng-click="stopCrawl()">
-              <i class="icon-stop icon-white"></i> Stop
-            </button>
-            <button class="btn btn-warning" id="resetButton" data-toggle="popover" title="" data-html="true" data-content="<label>Effacer les données (nœuds, liens, mots-clés) <input type='checkbox' ng-model='resetData'></label><br><label>Effacer la configuration (seeds, filtres, profondeur...) <input type='checkbox' ng-model='resetSettings'></label><br><input type='button' class='btn' value='Effacer' ng-click='resetCrawl()'>" data-original-title="Réinitialiser" data-placement="bottom" data-container="div#status">
-              <i class="icon-trash icon-white"></i> Réinitialiser <b class="caret"></b>
-            </button>
-          </div>
-          <h4>État du serveur</h4>
-          Noeuds correspondants trouvés : <span class="ng-cloak">{{ visited }}</span><br />
-          Noeuds à explorer : <span class="ng-cloak">{{ working }}</span>
-        </div>
-        
-        <div class="well" ng-controller="SeedCtrl">
-          <h4>Seed</h4> <br>
-          <form ng-submit="addSeed()">
-            <div class="input-append">
-              <input type="text" class="span3" ng-model="newSeed" placeholder="http://www.example.com">
-              <button class="btn" type="button" ng-click="addSeed()"><i class="icon-plus"></i></button>
+        <div class="well">
+          <div ng-controller="StatusCtrl" id="status">
+            <div class="btn-group">
+              <button class="btn btn-success" ng-click="startCrawl()">
+                <i class="icon-play icon-white"></i> Start
+              </button>
+              <button class="btn btn-danger" ng-click="stopCrawl()">
+                <i class="icon-stop icon-white"></i> Stop
+              </button>
+              <button class="btn btn-warning" data-toggle="popover" title="" data-html="true" data-content="<label>Effacer les données (nœuds, liens, mots-clés) <input type='checkbox' ng-model='resetData'></label><br><label>Effacer la configuration (seeds, filtres, profondeur...) <input type='checkbox' ng-model='resetSettings'></label><br><input type='button' class='btn' value='Effacer' ng-click='resetCrawl()'>" data-original-title="Réinitialiser" data-placement="bottom" data-container="div#status">
+                <i class="icon-trash icon-white"></i> Réinitialiser <b class="caret"></b>
+              </button>
             </div>
-          </form>
-          <ul id="seed-list" class="ng-cloak">
-            <li ng-repeat="seed in seeds">
-              {{ seed }} <a ng-click="deleteSeed($index)" href=""><i class="icon-remove"></i></a>
-            </li>
-          </ul>
-        </div>
-        
-        <div class="well" ng-controller="DepthCtrl">
-          <h4>Réglages</h4><br>
-          <span class="help-inline">Profondeur: </span><br>
-          <div class="control-group">
-            <div class="input-append" id="profondeur">
-              <input class="span3" type="text" value="" ng-model="depth">
-              <button class="btn" type="button" ng-click="DepthSet()"><i class="icon-arrow-down"></i></button>
-            </div>
+            <h4>État du serveur</h4>
+            Noeuds correspondants trouvés : <span class="ng-cloak">{{ visited }}</span><br />
+            Noeuds à explorer : <span class="ng-cloak">{{ working }}</span>
           </div>
 
-          <h4>Filtres</h4>
-          <div ng-controller="FilterCtrl">
-            <div class="control-group">
-              <label for="id_url">Adresse</label>
+          <h4>Réglages</h4>
+          <div ng-controller="SeedCtrl">
+            <form ng-submit="addSeed()">
+              <label for="id_seeds" class="help-inline">Seeds</label>
               <div class="input-append">
-                <form ng-submit="addFilter('url')">
-                  <input class="span3" type="text" id="id_url" ng-model="newFilterData.url">
-                  <button class="btn" type="submit"><i class="icon-plus"></i></button>
-                </form>
+                <input type="text" id="id_seeds" class="span3" ng-model="newSeed" placeholder="http://www.example.com">
+                <button class="btn" type="button" ng-click="addSeed()"><i class="icon-plus"></i></button>
               </div>
-              <span class="help-inline">Seuls les pages dont l'URL contient au moins un des mots clés suivants seront traitées.</span>
-            </div>
-            <ul class="well" ng-show="filters.url.length">
-              <li ng-repeat="url in filters.url" class="ng-cloak">
-                {{ url }} <a ng-click="deleteFilter('url', $index)" href=""><i class="icon-remove"></i></a></a>
+            </form>
+            <ul id="seed-list" class="ng-cloak">
+              <li ng-repeat="seed in seeds">
+                {{ seed }} <a ng-click="deleteSeed($index)" href=""><i class="icon-remove"></i></a>
               </li>
             </ul>
+          </div>
+          <div ng-controller="DepthCtrl">
+            <div class="control-group">
+              <label for="id_depth" class="help-inline">Profondeur</label>
+              <div class="input-append">
+                <input class="span3" id="id_depth" type="text" value="" ng-model="depth">
+                <button class="btn" type="button" ng-click="DepthSet()"><i class="icon-arrow-down"></i></button>
+              </div>
+            </div>
+
+            <div ng-controller="FilterCtrl">
+              <h4>Filtres</h4>
+              <div class="control-group">
+                <label for="id_url" class="help-inline">Adresse</label>
+                <div class="input-append">
+                  <form ng-submit="addFilter('url')" data-toggle="popover" title="" data-trigger="hover" data-content="Seules les pages dont l'URL contient au moins un de ces mots-clés seront traitées" data-original-title="Filtrer les URL" data-placement="right">
+                    <input class="span3" id="id_url" type="text" ng-model="newFilterData.url">
+                    <button class="btn" type="submit"><i class="icon-plus"></i></button>
+                  </form>
+                </div>
+              </div>
+              <ul class="well" ng-show="filters.url.length">
+                <li ng-repeat="url in filters.url" class="ng-cloak">
+                  {{ url }} <a ng-click="deleteFilter('url', $index)" href=""><i class="icon-remove"></i></a></a>
+                </li>
+              </ul>
             
-            <div class="control-group">
-              <label for="id_title">Titre</label>
-              <div class="input-append">
-                <form ng-submit="addFilter('title')">
-                  <input class="span3" id="id_title" type="text" ng-model="newFilterData.title">
-                  <button class="btn" type="submit"><i class="icon-plus"></i></button>
-                </form>
+              <div class="control-group">
+                <label for="id_title" class="help-inline">Titre</label>
+                <div class="input-append">
+                  <form ng-submit="addFilter('title')" data-toggle="popover" title="" data-trigger="hover" data-content="Seules les pages dont le titre contient au moins un de ces mots-clés seront traitées" data-original-title="Filtrer le titre" data-placement="right">
+                    <input class="span3" id="id_title" type="text" ng-model="newFilterData.title">
+                    <button class="btn" type="submit"><i class="icon-plus"></i></button>
+                  </form>
+                </div>
               </div>
-              <span class="help-inline">Seuls les pages dont le titre contient au moins un des mots clés suivants seront traitées.</span>
-            </div>
-            <ul class="well" ng-show="filters.title">
-              <li ng-repeat="title in filters.title" class="ng-cloak">
-                {{ title }} <a ng-click="deleteFilter('title', $index)" href=""><i class="icon-remove"></i></a>
-              </li>
-            </ul>
+              <ul class="well" ng-show="filters.title">
+                <li ng-repeat="title in filters.title" class="ng-cloak">
+                  {{ title }} <a ng-click="deleteFilter('title', $index)" href=""><i class="icon-remove"></i></a>
+                </li>
+              </ul>
             
-            <div class="control-group">
-              <label for="id_body">Contenu</label>
-              <div class="input-append">
-                <form ng-submit="addFilter('body')">
-                  <input class="span3" id="id_body" type="text" ng-model="newFilterData.body">
-                  <button class="btn" type="submit"><i class="icon-plus"></i></button>
-                </form>
+              <div class="control-group">
+                <label for="id_body" class="help-inline">Contenu</label>
+                <div class="input-append">
+                  <form ng-submit="addFilter('body')" data-toggle="popover" title="" data-trigger="hover" data-content="Seules les pages dont le contenu contient au moins un de ces mots-clés seront traitées" data-original-title="Filtrer le contenu" data-placement="right">
+                    <input class="span3" id="id_body" type="text" ng-model="newFilterData.body">
+                    <button class="btn" type="submit"><i class="icon-plus"></i></button>
+                  </form>
+                </div>
               </div>
-              <span class="help-inline">Seuls les pages dont le contenu contient au moins un des mots clés suivants seront traitées.</span>
+              <ul class="well" ng-show="filters.body.length">
+                <li ng-repeat="body in filters.body" class="ng-cloak">
+                  {{ body }} <a ng-click="deleteFilter('body', $index)" href=""><i class="icon-remove"></i></a>
+                </li>
+              </ul>
             </div>
-            <ul class="well" ng-show="filters.body.length">
-              <li ng-repeat="body in filters.body" class="ng-cloak">
-                {{ body }} <a ng-click="deleteFilter('body', $index)" href=""><i class="icon-remove"></i></a>
-              </li>
-            </ul>
           </div>
         </div>
       </div>
@@ -139,7 +137,7 @@
       </div>
     </div>
       
-    <script src="http://code.jquery.com/jquery.js"></script>
+    <script src="http://code.jquery.com/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/angular.min.js"></script>
     <script src="js/sigma.min.js"></script>

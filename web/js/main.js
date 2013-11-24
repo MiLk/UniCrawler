@@ -57,10 +57,11 @@ function StatusCtrl($scope, $http, $timeout, $compile) {
   };
   
   // Reset button
-  $scope.popover = $("#resetButton").popover().on('shown', function(){
+  $scope.popover = $('button[data-toggle=popover]').popover().on('shown', function(){
     var popover = $(this).parent().parent().find('.popover .popover-content');
     popover.html($compile(popover.html())($scope));
   });
+  $('form[data-toggle=popover]').popover();
   
   $scope.resetCrawl = function(index) {
     var type = -1;
