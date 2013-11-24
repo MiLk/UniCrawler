@@ -38,3 +38,7 @@ html, body {
 #controlbox .well, #toolbox button {
   background: rgba(245, 245, 245, 0.75)
 }
+
+.btn:focus {
+  outline: none;
+}
