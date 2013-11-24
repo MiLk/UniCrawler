@@ -40,20 +40,6 @@
   
     <div class="row">
       <div class="span4">
-        <div class="well" ng-controller="SeedCtrl">
-          <h4>Seed</h4> <br>
-          <form ng-submit="addSeed()">
-            <div class="input-append">
-              <input type="text" class="span3" ng-model="newSeed" placeholder="http://www.example.com">
-              <button class="btn" type="button" ng-click="addSeed()"><i class="icon-plus"></i></button>
-            </div>
-          </form>
-          <ul id="seed-list">
-            <li ng-repeat="seed in seeds">
-              {{ seed }} <a ng-click="deleteSeed($index)" href=""><i class="icon-remove"></i></a>
-            </li>
-          </ul>
-        </div>
         <div class="well" ng-controller="StatusCtrl" id="status">
           <div class="btn-group">
             <button class="btn btn-success" ng-click="startCrawl()">
@@ -67,8 +53,23 @@
             </button>
           </div>
           <h4>État du serveur</h4>
-          Noeuds correspondants trouvés: {{ visited }}<br />
-          Noeuds à explorer: {{ working }}
+          Noeuds correspondants trouvés : <span class="ng-cloak">{{ visited }}</span><br />
+          Noeuds à explorer : <span class="ng-cloak">{{ working }}</span>
+        </div>
+        
+        <div class="well" ng-controller="SeedCtrl">
+          <h4>Seed</h4> <br>
+          <form ng-submit="addSeed()">
+            <div class="input-append">
+              <input type="text" class="span3" ng-model="newSeed" placeholder="http://www.example.com">
+              <button class="btn" type="button" ng-click="addSeed()"><i class="icon-plus"></i></button>
+            </div>
+          </form>
+          <ul id="seed-list" class="ng-cloak">
+            <li ng-repeat="seed in seeds">
+              {{ seed }} <a ng-click="deleteSeed($index)" href=""><i class="icon-remove"></i></a>
+            </li>
+          </ul>
         </div>
         
         <div class="well" ng-controller="DepthCtrl">
@@ -93,8 +94,8 @@
               </div>
               <span class="help-inline">Seuls les pages dont l'URL contient au moins un des mots clés suivants seront traitées.</span>
             </div>
-            <ul class="well">
-              <li ng-repeat="url in filters.url">
+            <ul class="well" ng-show="filters.url.length">
+              <li ng-repeat="url in filters.url" class="ng-cloak">
                 {{ url }} <a ng-click="deleteFilter('url', $index)" href=""><i class="icon-remove"></i></a></a>
               </li>
             </ul>
@@ -103,15 +104,14 @@
               <label for="id_title">Titre</label>
               <div class="input-append">
                 <form ng-submit="addFilter('title')">
-            
                   <input class="span3" id="id_title" type="text" ng-model="newFilterData.title">
                   <button class="btn" type="submit"><i class="icon-plus"></i></button>
                 </form>
               </div>
               <span class="help-inline">Seuls les pages dont le titre contient au moins un des mots clés suivants seront traitées.</span>
             </div>
-            <ul class="well">
-              <li ng-repeat="title in filters.title">
+            <ul class="well" ng-show="filters.title">
+              <li ng-repeat="title in filters.title" class="ng-cloak">
                 {{ title }} <a ng-click="deleteFilter('title', $index)" href=""><i class="icon-remove"></i></a>
               </li>
             </ul>
@@ -126,8 +126,8 @@
               </div>
               <span class="help-inline">Seuls les pages dont le contenu contient au moins un des mots clés suivants seront traitées.</span>
             </div>
-            <ul class="well">
-              <li ng-repeat="body in filters.body">
+            <ul class="well" ng-show="filters.body.length">
+              <li ng-repeat="body in filters.body" class="ng-cloak">
                 {{ body }} <a ng-click="deleteFilter('body', $index)" href=""><i class="icon-remove"></i></a>
               </li>
             </ul>
