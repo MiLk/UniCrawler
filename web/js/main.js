@@ -17,7 +17,7 @@ function GlobalCtrl($scope) {
 }
 
 // Crawl status
-function StatusCtrl($scope, $http, $timeout) {
+function StatusCtrl($scope, $http, $timeout, $compile) {
   // Read with polling
   (function poll(){
     if(!$scope.retry){
@@ -35,6 +35,52 @@ function StatusCtrl($scope, $http, $timeout) {
       $timeout(poll, $scope.retry);
     });
   })();
+  
+  // Start button
+  $scope.startCrawl = function(index) {
+    $http.post(api_url + '/start').success(function(data) {
+      $scope.$parent.error = false;
+    }).error(function(data, status){
+      $scope.$parent.error = "Impossible de démarrer le crawl";
+      console.error(data);
+    });
+  };
+  
+  // Stop button
+  $scope.stopCrawl = function(index) {
+    $http.post(api_url + '/stop').success(function(data) {
+      $scope.$parent.error = false;
+    }).error(function(data, status){
+      $scope.$parent.error = "Impossible d'arrêter le crawl";
+      console.error(data);
+    });
+  };
+  
+  // Reset button
+  $scope.popover = $("#resetButton").popover().on('shown', function(){
+    var popover = $(this).parent().parent().find('.popover .popover-content');
+    popover.html($compile(popover.html())($scope));
+  });
+  
+  $scope.resetCrawl = function(index) {
+    var type = -1;
+    if($scope.resetData && $scope.resetSettings) type = 0;
+    else if($scope.resetData && !$scope.resetSettings) type = 1;
+    else if(!$scope.resetData && $scope.resetSettings) type = 2;
+
+    if(type > -1){
+      $http.post(api_url + '/reset', { type: type }).success(function(data) {
+        if($scope.resetSettings){
+          $scope.$parent.resetApp();
+        }
+        $scope.$parent.error = false;
+      }).error(function(data, status){
+        $scope.$parent.error = "Impossible de réinitialiser le crawl";
+        console.error(data);
+      });
+    }
+    $scope.popover.popover('hide');
+  };
 }
 
 // Seeds
@@ -142,48 +188,6 @@ function FilterCtrl($scope, $http) {
       $scope.filters[target].splice(index, 1);
     }).error(function(data, status){
       $scope.$parent.error = "Impossible de supprimer le " + target;
-      console.error(data);
-    });
-  };
-}
-
-// Control buttons
-function ButtonsCtrl($scope, $http) {
-  // Start
-  $scope.startCrawl = function(index) {
-    $http.post(api_url + '/start').success(function(data) {
-      $scope.$parent.error = false;
-    }).error(function(data, status){
-      $scope.$parent.error = "Impossible de démarrer le crawl";
-      console.error(data);
-    });
-  };
-  
-  // Stop
-  $scope.stopCrawl = function(index) {
-    $http.post(api_url + '/stop').success(function(data) {
-      $scope.$parent.error = false;
-    }).error(function(data, status){
-      $scope.$parent.error = "Impossible d'arrêter le crawl";
-      console.error(data);
-    });
-  };
-  
-  // Reset
-  $scope.resetCrawl = function(index) {
-    var type;
-    if($scope.resetData && $scope.resetSettings) type = 0;
-    else if($scope.resetData && !$scope.resetSettings) type = 1;
-    else if(!$scope.resetData && $scope.resetSettings) type = 2;
-    else return;
-    
-    $http.post(api_url + '/reset', { type: type }).success(function(data) {
-      if($scope.resetSettings){
-        $scope.$parent.resetApp();
-      }
-      $scope.$parent.error = false;
-    }).error(function(data, status){
-      $scope.$parent.error = "Impossible de réinitialiser le crawl";
       console.error(data);
     });
   };

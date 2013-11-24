@@ -54,23 +54,18 @@
             </li>
           </ul>
         </div>
-        <div class="well" ng-controller="ButtonsCtrl">
-          <h4>Contrôle</h4>
+        <div class="well" ng-controller="StatusCtrl" id="status">
           <div class="btn-group">
-            <button class="btn btn-success" ng-click="startCrawl()"><i class="icon-play icon-white"></i> Start</button>
-            <button class="btn btn-danger" ng-click="stopCrawl()"><i class="icon-stop icon-white"></i> Stop</button>
-            <button class="btn btn-warning" ng-click="resetCrawl()"><i class="icon-trash icon-white"></i> Reset</button>
+            <button class="btn btn-success" ng-click="startCrawl()">
+              <i class="icon-play icon-white"></i> Start
+            </button>
+            <button class="btn btn-danger" ng-click="stopCrawl()">
+              <i class="icon-stop icon-white"></i> Stop
+            </button>
+            <button class="btn btn-warning" id="resetButton" data-toggle="popover" title="" data-html="true" data-content="<label>Effacer les données (nœuds, liens, mots-clés) <input type='checkbox' ng-model='resetData'></label><br><label>Effacer la configuration (seeds, filtres, profondeur...) <input type='checkbox' ng-model='resetSettings'></label><br><input type='button' class='btn' value='Effacer' ng-click='resetCrawl()'>" data-original-title="Réinitialiser" data-placement="bottom" data-container="div#status">
+              <i class="icon-trash icon-white"></i> Réinitialiser <b class="caret"></b>
+            </button>
           </div>
-          <div>
-            <label><strong>Réinitialiser les données</strong> <input type="checkbox" ng-model="resetData"></label><br>
-            <em>En cochant cette case, les données récoltées par le crawler seront effacées (noeuds, liens, mots-clés).</em>
-          </div>
-          <div>
-            <label><strong>Réinitialiser la configuration</strong><input type="checkbox" ng-model="resetSettings"></label><br>
-            <em>En cochant cette case, tous les paramètres seront effacés (seeds, filtres, profondeur, ...).</em>
-          </div>
-        </div>
-        <div class="well" ng-controller="StatusCtrl">
           <h4>État du serveur</h4>
           Noeuds correspondants trouvés: {{ visited }}<br />
           Noeuds à explorer: {{ working }}
