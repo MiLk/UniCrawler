@@ -14,5 +14,5 @@ Copy the `config/default.json` file to `config/production.json` and edit its con
 
 ```
 export NODE_ENV=production
-npm start
+port=8081; npm start
 ```

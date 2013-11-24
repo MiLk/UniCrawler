@@ -268,6 +268,7 @@ server.get(/^\/docs(\/.*)?$/, function(req, res, next) {
   return docs_handler(req, res, next);
 });
 
-server.listen(8081, function() {
-  console.log('Express listening at 0.0.0.0:%d',8081);
+var port = node.env.port || 8081;
+server.listen(port, function() {
+  console.log('Express listening at 0.0.0.0:%d',port);
 });
