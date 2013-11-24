@@ -10,7 +10,7 @@ function getNextSequence(name, callback) {
   }, { 'new': true }, function(err, obj) {
     if(err) return callback(err);
     if(!obj) {
-      mongodb.db.collection('counters').insert({ "_id" : "nodes", "seq" : 1 }, function(err) {
+      mongodb.db.collection('counters').insert({ "_id" : name, "seq" : 1 }, function(err) {
         if(err) return callback(err);
         return callback(null,1);
       });
