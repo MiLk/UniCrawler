@@ -3,21 +3,30 @@ var mongodb = require('./mongodb');
 var collections = {};
 
 function getNextSequence(name, callback) {
-  var r = mongodb.db.collection('counters').findAndModify({
+  mongodb.db.collection('counters').findAndModify({
     _id: name
   }, {}, {
     "$inc": { seq: 1 }
-  }, { 'new': true }, callback);
+  }, { 'new': true }, function(err, obj) {
+    if(err) return callback(err);
+    if(!obj) {
+      mongodb.db.collection('counters').insert({ "_id" : "nodes", "seq" : 1 }, function(err) {
+        if(err) return callback(err);
+        return callback(null,1);
+      });
+    }
+    return callback(null,obj.seq);
+  });
 };
 
 collections.addNode = function(node, cb) {
   if(!node.url) console.error('No url for this node.');
   if(!node.depth && node.depth !== 0) console.error('No depth for this node ('+node.url+').');
-  getNextSequence('nodes', function(err, obj) {
+  getNextSequence('nodes', function(err, seq) {
     mongodb.db.collection('nodes').update({
       _id: node.url
     }, {
-      "$set": { depth: node.depth, seqId: obj.seq }
+      "$set": { depth: node.depth, seqId: seq }
     }, { upsert: true }, cb);
   });
 };
