@@ -18,6 +18,11 @@ function GlobalCtrl($scope) {
     $scope.depth = '';
     $scope.filters = [];
   };
+
+  // Reset all the GUI
+  $scope.resetData = function(){
+    $scope.sigInst.emptyGraph();
+  };
 }
 
 // Crawl status
@@ -77,6 +82,9 @@ function StatusCtrl($scope, $http, $timeout, $compile) {
       $http.post(api_url + '/reset', { type: type }).success(function(data) {
         if($scope.resetSettings){
           $scope.$parent.resetApp();
+        }
+        if($scope.resetData){
+          $scope.$parent.resetData();
         }
         $scope.$parent.error = false;
       }).error(function(data, status){
@@ -240,7 +248,7 @@ function SigmaCtrl($scope, $http, $timeout) {
     defaultLabelSize: 14,
     defaultLabelBGColor: '#fff',
     defaultLabelHoverColor: '#000',
-    labelThreshold: 6,
+    labelThreshold: 8,
     defaultEdgeType: 'curve'
   }).graphProperties({
     minNodeSize: 0.5,
@@ -251,81 +259,93 @@ function SigmaCtrl($scope, $http, $timeout) {
     minRatio: 0.75, // How far can we zoom out?
     maxRatio: 20, // How far can we zoom in?
   });
+  
+  // Higlight linked nodes when hovering
+  var greyColor = '#666';
+  $scope.$parent.sigInst.bind('overnodes',function(event){
+   var nodes = event.content;
+   var neighbors = {};
+   $scope.$parent.sigInst.iterEdges(function(e){
+     if(nodes.indexOf(e.source)<0 && nodes.indexOf(e.target)<0){
+       if(!e.attr['grey']){
+         e.attr['true_color'] = e.color;
+         e.color = greyColor;
+         e.attr['grey'] = 1;
+       }
+     }else{
+       e.color = e.attr['grey'] ? e.attr['true_color'] : e.color;
+       e.attr['grey'] = 0;
 
-  $http.get('test-data.json').success(function(data) {
-    $scope.$parent.error = false;
-    //$scope.jsonData = data;
+       neighbors[e.source] = 1;
+       neighbors[e.target] = 1;
+     }
+   }).iterNodes(function(n){
+     if(!neighbors[n.id]){
+       if(!n.attr['grey']){
+         n.attr['true_color'] = n.color;
+         n.color = greyColor;
+         n.attr['grey'] = 1;
+       }
+     }else{
+       n.color = n.attr['grey'] ? n.attr['true_color'] : n.color;
+       n.attr['grey'] = 0;
+     }
+   }).draw(2,2,2);
+  }).bind('outnodes',function(){
+   $scope.$parent.sigInst.iterEdges(function(e){
+     e.color = e.attr['grey'] ? e.attr['true_color'] : e.color;
+     e.attr['grey'] = 0;
+   }).iterNodes(function(n){
+     n.color = n.attr['grey'] ? n.attr['true_color'] : n.color;
+     n.attr['grey'] = 0;
+   }).draw(2,2,2);
+  });
 
-    // Create all the nodes
-    var nodeList = {};
-    for(var node in data){
-      nodeList[data[node]._id] = 1;
-      var l = document.createElement("a");
-      l.href = data[node]._id;
-      $scope.$parent.sigInst.addNode(data[node]._id, {
-        label: l.href,
-        x: Math.random(),
-        y: Math.random(),
-        color: l.hostname.hashColor(),
-        size: 0.8
-      });
-    }
+  var xhr = new XMLHttpRequest();
+  var nodeList = {};
+  var edgeList = {};
+  var edgeId = 0;
+  xhr.onreadystatechange = function() {
+    if (this.readyState > 2) {
+      var partial_response = this.responseText.split("\n");
+      for(var line in partial_response){
+        if(partial_response[line]){
+          try {
+            var node = JSON.parse(partial_response[line]);
 
-    // Create the edges
-    var i = 0;
-    for(var node in data){
-      for(var link in data[node].links){
-        if(nodeList[data[node].links[link]]){
-          $scope.$parent.sigInst.addEdge(i++, data[node]._id, data[node].links[link]);
+            // Add the node to the graph
+            if(node && node._id && !nodeList[node._id]){
+              nodeList[node._id] = 1;
+              var l = document.createElement("a");
+              l.href = node._id;
+              $scope.$parent.sigInst.addNode(node._id, {
+                label: l.href,
+                x: Math.random(),
+                y: Math.random(),
+                color: l.hostname.hashColor(),
+                size: 0.8
+              });
+            }
+
+            // Create the edges
+            for(var link in node.links){
+              if(nodeList[node.links[link]] && !edgeList[node._id + node.links[link]]){
+                $scope.$parent.sigInst.addEdge(edgeId++, node._id, node.links[link]);
+                edgeList[node._id + node.links[link]] = 1;
+              }
+            }
+          
+            // Redraw graph
+            $scope.$parent.sigInst.draw();
+          } catch (e) {
+            // This was not JSON, okay.
+          }
         }
       }
     }
-
-    // Higlight linked nodes when hovering
-     var greyColor = '#666';
-     $scope.$parent.sigInst.bind('overnodes',function(event){
-       var nodes = event.content;
-       var neighbors = {};
-       $scope.$parent.sigInst.iterEdges(function(e){
-         if(nodes.indexOf(e.source)<0 && nodes.indexOf(e.target)<0){
-           if(!e.attr['grey']){
-             e.attr['true_color'] = e.color;
-             e.color = greyColor;
-             e.attr['grey'] = 1;
-           }
-         }else{
-           e.color = e.attr['grey'] ? e.attr['true_color'] : e.color;
-           e.attr['grey'] = 0;
-
-           neighbors[e.source] = 1;
-           neighbors[e.target] = 1;
-         }
-       }).iterNodes(function(n){
-         if(!neighbors[n.id]){
-           if(!n.attr['grey']){
-             n.attr['true_color'] = n.color;
-             n.color = greyColor;
-             n.attr['grey'] = 1;
-           }
-         }else{
-           n.color = n.attr['grey'] ? n.attr['true_color'] : n.color;
-           n.attr['grey'] = 0;
-         }
-       }).draw(2,2,2);
-     }).bind('outnodes',function(){
-       $scope.$parent.sigInst.iterEdges(function(e){
-         e.color = e.attr['grey'] ? e.attr['true_color'] : e.color;
-         e.attr['grey'] = 0;
-       }).iterNodes(function(n){
-         n.color = n.attr['grey'] ? n.attr['true_color'] : n.color;
-         n.attr['grey'] = 0;
-       }).draw(2,2,2);
-     });
-    
-    $scope.$parent.sigInst.draw();    
-  }).error(function(data, status){
-    $scope.$parent.error = "Impossible de récupérer les données";
-    console.error(data);
-  });
+    // TODO Handle readyState = 4 -> start a new stream, as well as errors
+  };
+  xhr.open('GET',api_url + '/results.json',true);
+  xhr.send();
 }
 
