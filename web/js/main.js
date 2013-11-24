@@ -256,6 +256,8 @@ function SigmaCtrl($scope, $http, $timeout) {
       }
     }
     
+    sigInst.draw();
+    
     /*sigInst.startForceAtlas2();
     $timeout(sigInst.stopForceAtlas2, 7000);*/
     
