@@ -243,7 +243,7 @@ String.prototype.hashColor = function(){
 }
 
 function SigmaCtrl($scope, $http, $timeout) {
-  // Instanciate sigma.js and customize it :
+  // Instanciate sigma.js and customize it
   $scope.$parent.sigInst = sigma.init(document.getElementById('sigma')).drawingProperties({
     defaultLabelColor: '#fff',
     defaultLabelSize: 14,
@@ -302,6 +302,14 @@ function SigmaCtrl($scope, $http, $timeout) {
    }).draw(2,2,2);
   });
 
+  $scope.lastDraw = 0;
+  function redrawGraph(){
+    if(Date.now() - $scope.lastDraw > 500){
+      $scope.$parent.sigInst.draw();
+      $scope.lastDraw = Date.now();
+    }
+  }
+  
   var xhr = new XMLHttpRequest();
   var nodeList = {};
   var edgeList = {};
@@ -320,12 +328,13 @@ function SigmaCtrl($scope, $http, $timeout) {
               var l = document.createElement("a");
               l.href = node._id;
               $scope.$parent.sigInst.addNode(node._id, {
-                label: l.href,
+                label: node._id,
                 x: Math.random(),
                 y: Math.random(),
                 color: l.hostname.hashColor(),
                 size: 0.8
               });
+              redrawGraph();
             }
 
             // Create the edges
@@ -333,11 +342,9 @@ function SigmaCtrl($scope, $http, $timeout) {
               if(nodeList[node.links[link]] && !edgeList[node._id + node.links[link]]){
                 $scope.$parent.sigInst.addEdge(edgeId++, node._id, node.links[link]);
                 edgeList[node._id + node.links[link]] = 1;
+                redrawGraph();
               }
             }
-          
-            // Redraw graph
-            $scope.$parent.sigInst.draw();
           } catch (e) {
             // This was not JSON, okay.
           }
