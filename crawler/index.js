@@ -51,8 +51,8 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
         var found_body_keyword = _.reduce(config.body, function(memo, keyword) {
           if(body.search(new RegExp(keyword,"i")) != -1) {
             memo.push(keyword);
-            return memo;
           }
+          return memo;
         }, []);
       }
       if ( config.body.length == 0
@@ -73,8 +73,8 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
             var found_title_keyword = _.reduce(config.title, function(memo, keyword) {
               if(title.search(new RegExp(keyword,"i")) != -1) {
                 memo.push(keyword);
-                return memo;
               }
+              return memo;
             }, []);
           }
         }
@@ -119,8 +119,8 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
                 var found_url_keyword = _.reduce(config.url, function(memo, keyword) {
                   if(link.url.toLowerCase().search(keyword) != -1) {
                     memo.push(keyword);
-                    return memo;
                   }
+                  return memo;
                 }, []);
               }
               if ( config.url.length == 0
@@ -238,7 +238,7 @@ function loadConfig(config_callback) {
       url: results[0],
       title: results[1],
       body: results[2],
-      depth: results[3],
+      depth: results[3]
     });
   });
 };
@@ -325,10 +325,6 @@ events.on('link_to_follow', function(source, dst, depth) {
 // Useful to export to gephi
 events.on('good_link_found', function(source, dst, depth) {
   collections.addLink(source,dst);
-  client.hget('encoded_url', source, function(err, encrypted_url) {
-    if(err) util.error('good_link_found error: ' + err);
-    else client.rpush('links_'+encrypted_url, dst);
-  });
 });
 
 events.on('url_visited', function(url) {
@@ -344,12 +340,5 @@ events.on('url_visited', function(url) {
 });
 
 events.on('keywords_found', function(url, found_keyword) {
-  client.hget('encoded_url', url, function(err, encrypted_url) {
-    if(err) util.error('keywords_found error: ' + err);
-    else {
-      _.each(found_keyword, function(keyword) {
-        client.sadd('keywords_'+encrypted_url,keyword);
-      });
-    }
-  });
+  collections.addKeyword(url, found_keyword);
 });

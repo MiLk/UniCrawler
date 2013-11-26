@@ -19,6 +19,9 @@ function onMongoClientConnect(err, _db) {
   util.log('MongoDB ready');
   mongodb.db = _db;
   mongodb.emit('ready');
+  mongodb.db.collection('nodes').ensureIndex({ seq: 1 }, {sparse:true }, function(err) {
+    if(err) console.error(err);
+  });
 };
 
 module.exports = mongodb;

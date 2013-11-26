@@ -251,9 +251,6 @@ swagger.addPost({
   'action': routes.postDepth
 });
 
-
-server.get('/output.csv', routes.getCsv);
-server.get('/keywords.csv', routes.getKeywords);
 server.get('/results.json', routes.getResults);
 
 swagger.configureSwaggerPaths("", "/api-docs", "");
@@ -271,6 +268,7 @@ server.get(/^\/docs(\/.*)?$/, function(req, res, next) {
   return docs_handler(req, res, next);
 });
 
-server.listen(8081, function() {
-  console.log('Express listening at 0.0.0.0:%d',8081);
+var port = process.env.port || 8081;
+server.listen(port, function() {
+  console.log('Express listening at 0.0.0.0:%d',port);
 });

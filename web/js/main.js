@@ -8,6 +8,7 @@ function GlobalCtrl($scope) {
   // Reset all the GUI
   $scope.resetApp = function(){
     // TODO This doesn't work, we need to refresh or something
+    // use $scope.$broadcast() to dispatch the reset event to all child scopes
     $scope.seeds = [];
     $scope.working = 0;
     $scope.visited = 0;
