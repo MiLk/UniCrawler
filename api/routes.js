@@ -128,7 +128,7 @@ function deleteFilter(req, res, next) {
 function getDepth(req, res, next) {
   client.get('depth', function(err, data) {
     if(err) return next(err);
-    res.send(200,{depth: data || 1});
+    res.send(200,{depth: parseInt(data) || 1});
   });
 }
 
