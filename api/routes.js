@@ -10,7 +10,6 @@ var client = redis.createClient(config.redis.port, config.redis.address, {
 });
 
 function getState(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
   var Multi = client.multi()
   Multi
     .llen('working')
@@ -22,19 +21,16 @@ function getState(req, res, next) {
 }
 
 function postStart(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
   client.publish('actions','start');
   res.send(200, {});
 }
 
 function postStop(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
   client.publish('actions','stop');
   res.send(200, {});
 }
 
 function postReset(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
   var type = parseInt(req.body.type);
   if(!type || type < 0 || type > 2) type = 0;
   var Multi = client.multi()
@@ -61,7 +57,6 @@ function postReset(req, res, next) {
 }
 
 function getSeed(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
   client.lrange('seed', 0, -1, function(err, data) {
     if(err) return next(err);
     res.send(200,data);
@@ -69,7 +64,6 @@ function getSeed(req, res, next) {
 }
 
 function postSeed(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
   var url = req.body.url;
   if(!url) return next('You must specify an url to add.');
   res.send(201, {url: url});
@@ -77,7 +71,6 @@ function postSeed(req, res, next) {
 }
 
 function deleteSeed(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
   var url = req.query.url;
   if(!url) return next('You must specify an url to delete.');
   res.send(201, {url: url});
@@ -85,7 +78,6 @@ function deleteSeed(req, res, next) {
 }
 
 function getFilter(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
   async.parallel([
     function(callback) {
       client.smembers('filter_url', function(err, data) {
@@ -113,7 +105,6 @@ function getFilter(req, res, next) {
 }
 
 function postFilter(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
   var keyword = req.body.keyword
     , target = req.body.target
     ;
@@ -125,7 +116,6 @@ function postFilter(req, res, next) {
 }
 
 function deleteFilter(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
   var keyword = req.query.keyword
     , target = req.query.target;
   if(!keyword) return next('You must specify a keyword for the filter.');
@@ -136,7 +126,6 @@ function deleteFilter(req, res, next) {
 }
 
 function getDepth(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
   client.get('depth', function(err, data) {
     if(err) return next(err);
     res.send(200,{depth: data || 1});
@@ -144,7 +133,6 @@ function getDepth(req, res, next) {
 }
 
 function postDepth(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*');
   var depth = parseInt(req.body.depth);
   if(!depth || depth < 1) depth = 1;
   res.send(201, {});

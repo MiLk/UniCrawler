@@ -24,6 +24,12 @@ server.use(function(req, res, next){
     next();
   }
 });
+server.use(function(req, res, next) {
+  res.header('Cache-control', 'no-cache, no-store, must-revalidate');
+  res.header('Pragma', 'no-cache');
+  res.header('Expires', '0');
+  next();
+});
 
 swagger.setAppHandler(server);
 swagger.addModels(models);
