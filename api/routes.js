@@ -99,7 +99,7 @@ function getFilter(req, res, next) {
     res.send(200,{
       url: results[0],
       title: results[1],
-      body: results[2],
+      body: results[2]
     });
   });
 }
@@ -137,6 +137,41 @@ function postDepth(req, res, next) {
   if(!depth || depth < 1) depth = 1;
   res.send(201, {});
   client.set('depth',depth);
+}
+
+function getConfig(req,res, next) {
+  async.parallel([
+    function(callback) {
+      client.lrange('seed', 0, -1, callback);
+    },
+    function(callback) {
+      client.multi()
+        .llen('working')
+        .llen('visited')
+        .get('depth')
+        .exec(callback);
+    },
+    function(callback) {
+      client.smembers('filter_url', callback);
+    },
+    function(callback) {
+      client.smembers('filter_title', callback);
+    },
+    function(callback) {
+      client.smembers('filter_body', callback);
+    }
+  ], function(err, results) {
+    if(err) return next(err);
+    res.send(200,{
+      seeds: results[0],
+      working: (results[1][0]/2),
+      visited: parseInt(results[1][1]),
+      depth: parseInt(results[1][2]) || 1,
+      url: results[2],
+      title: results[3],
+      body: results[4]
+    });
+  });
 }
 
 function getResultsJson(req, res, next) {
@@ -243,6 +278,7 @@ module.exports = {
   deleteFilter: deleteFilter,
   getDepth: getDepth,
   postDepth: postDepth,
+  getConfig: getConfig,
   getResultsJson: getResultsJson,
   getResultsGdf: getResultsGdf
 };

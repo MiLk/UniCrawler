@@ -257,6 +257,7 @@ swagger.addPost({
   'action': routes.postDepth
 });
 
+server.get('/config', routes.getConfig);
 server.get('/results.json', routes.getResultsJson);
 server.get('/results.gdf', routes.getResultsGdf);
 
