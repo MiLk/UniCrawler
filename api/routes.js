@@ -151,7 +151,7 @@ function postDepth(req, res, next) {
   client.set('depth',depth);
 }
 
-function getResults(req, res, next) {
+function getResultsJson(req, res, next) {
   res.writeHead(200, {'content-type' : 'application/jsonstream'});
   var query = {};
   var lastSeqId = 0;
@@ -168,7 +168,7 @@ function getResults(req, res, next) {
   }
 
   function getLastResults() {
-    collections.findNodes(query,function(cursor) {
+    collections.findNodes(query, null, function(cursor) {
       var stream = cursor.stream();
       stream.on('data', onData);
       stream.on('close', onClose);
@@ -181,6 +181,65 @@ function getResults(req, res, next) {
     clearTimeout(timeout);
     res.end();
   });
+}
+
+function getResultsGdf(req, res, next) {
+  res.writeHead(200, {'content-type': 'application/octet-stream'});
+
+  function writeNodeDef(callback) {
+    res.write('nodedef>name VARCHAR,label VARCHAR\n');
+    return callback();
+  }
+
+  function getNodes(callback) {
+    function onData(node) {
+      var str = "'" + node._id + "','" + node._id +"'";
+      res.write(str + '\n');
+    }
+    function onClose() {
+      return callback();
+    }
+    collections.findNodes(null,{
+      "_id": 1
+    },function(cursor) {
+      var stream = cursor.stream();
+      stream.on('data', onData);
+      stream.on('close', onClose);
+    });
+  }
+
+  function writeEdgeDef(callback) {
+    res.write('edgedef>node1 VARCHAR,node2 VARCHAR');
+    return callback();
+  }
+
+  function getEdges(callback) {
+    function onData(node) {
+      if(node.links)
+        node.links.forEach(function(link) {
+          var str = "'" + node._id + "','" + link +"'";
+          res.write(str + '\n');
+        });
+    }
+
+    function onClose() {
+      return callback();
+    }
+
+    collections.findNodes(null,{
+      "_id": 1,
+      "links": 1
+    },function(cursor) {
+      var stream = cursor.stream();
+      stream.on('data', onData);
+      stream.on('close', onClose);
+    });
+  }
+
+  async.series([writeNodeDef, getNodes,writeEdgeDef, getEdges], function(err, results) {
+    res.end();
+  });
+
 }
 
 module.exports = {
@@ -196,7 +255,8 @@ module.exports = {
   deleteFilter: deleteFilter,
   getDepth: getDepth,
   postDepth: postDepth,
-  getResults: getResults
+  getResultsJson: getResultsJson,
+  getResultsGdf: getResultsGdf
 };
 
 client.on('ready', function(){

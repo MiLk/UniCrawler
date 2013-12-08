@@ -251,7 +251,8 @@ swagger.addPost({
   'action': routes.postDepth
 });
 
-server.get('/results.json', routes.getResults);
+server.get('/results.json', routes.getResultsJson);
+server.get('/results.gdf', routes.getResultsGdf);
 
 swagger.configureSwaggerPaths("", "/api-docs", "");
 swagger.configure("http://ic05-api.emilienkenler.com", "0.1");
