@@ -340,5 +340,7 @@ events.on('url_visited', function(url) {
 });
 
 events.on('keywords_found', function(url, found_keyword) {
-  collections.addKeyword(url, found_keyword);
+  found_keyword.forEach(function(keyword) {
+    collections.addKeyword(url, keyword);
+  });
 });

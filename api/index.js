@@ -260,6 +260,7 @@ swagger.addPost({
 server.get('/config', routes.getConfig);
 server.get('/results.json', routes.getResultsJson);
 server.get('/results.gdf', routes.getResultsGdf);
+server.get('/keywords.gdf', routes.getKeywordsGdf);
 
 swagger.configureSwaggerPaths("", "/api-docs", "");
 swagger.configure("http://ic05-api.emilienkenler.com", "0.1");

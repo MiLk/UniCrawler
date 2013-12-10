@@ -232,7 +232,7 @@ function getResultsGdf(req, res, next) {
   }
 
   function writeEdgeDef(callback) {
-    res.write('edgedef>node1 VARCHAR,node2 VARCHAR');
+    res.write('edgedef>node1 VARCHAR,node2 VARCHAR\n');
     return callback();
   }
 
@@ -265,6 +265,75 @@ function getResultsGdf(req, res, next) {
 
 }
 
+function getKeywordsGdf(req, res, next) {
+  res.writeHead(200, {'content-type': 'application/octet-stream'});
+
+  function writeNodeDef(callback) {
+    res.write('nodedef>name VARCHAR,label VARCHAR\n');
+    return callback();
+  }
+
+  function getKeywords(callback) {
+    collections.listKeywords(function(err, results) {
+      if(err) return callback(err);
+      results.forEach(function(keyword) {
+        var str = "'" + keyword._id + "','" + keyword._id +"'";
+        res.write(str + '\n');
+      });
+      return callback();
+    });
+  }
+
+  function getNodes(callback) {
+    function onData(node) {
+      var str = "'" + node._id + "','" + node._id +"'";
+      res.write(str + '\n');
+    }
+    function onClose() {
+      return callback();
+    }
+    collections.findNodes(null,{
+      "_id": 1
+    },function(cursor) {
+      var stream = cursor.stream();
+      stream.on('data', onData);
+      stream.on('close', onClose);
+    });
+  }
+
+  function writeEdgeDef(callback) {
+    res.write('edgedef>node VARCHAR, keyword VARCHAR\n');
+    return callback();
+  }
+
+  function getEdges(callback) {
+    function onData(node) {
+      if(node.keywords)
+        node.keywords.forEach(function(keyword) {
+          var str = "'" + node._id + "','" + keyword +"'";
+          res.write(str + '\n');
+        });
+    }
+
+    function onClose() {
+      return callback();
+    }
+
+    collections.findNodes(null,{
+      "_id": 1,
+      "keywords": 1
+    },function(cursor) {
+      var stream = cursor.stream();
+      stream.on('data', onData);
+      stream.on('close', onClose);
+    });
+  }
+
+  async.series([writeNodeDef, getKeywords, getNodes,writeEdgeDef, getEdges], function(err, results) {
+    res.end();
+  });
+}
+
 module.exports = {
   getState: getState,
   postStart: postStart,
@@ -280,7 +349,8 @@ module.exports = {
   postDepth: postDepth,
   getConfig: getConfig,
   getResultsJson: getResultsJson,
-  getResultsGdf: getResultsGdf
+  getResultsGdf: getResultsGdf,
+  getKeywordsGdf: getKeywordsGdf
 };
 
 client.on('ready', function(){
