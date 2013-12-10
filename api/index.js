@@ -25,9 +25,9 @@ server.use(function(req, res, next){
   }
 });
 server.use(function(req, res, next) {
-  res.header('Cache-control', 'no-cache, no-store, must-revalidate');
+  res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.header('Pragma', 'no-cache');
-  res.header('Expires', '0');
+  res.header('Expires', 'Sat, 26 Jul 1997 05:00:00 GMT');
   next();
 });
 
