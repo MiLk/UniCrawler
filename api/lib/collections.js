@@ -17,4 +17,13 @@ collections.dropNodes = function() {
   });
 };
 
+collections.listKeywords = function(callback) {
+  mongodb.db.collection('nodes').aggregate([
+    { $project: { keywords: 1 } },
+    { $unwind: "$keywords" },
+    { $sort: { keywords: 1 } },
+    { $group: { _id: "$keywords" } }
+  ], callback);
+};
+
 module.exports = collections;

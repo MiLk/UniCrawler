@@ -14,8 +14,8 @@ function getNextSequence(name, callback) {
         if(err) return callback(err);
         return callback(null,1);
       });
-    }
-    return callback(null,obj.seq);
+    } else
+      return callback(null,obj.seq);
   });
 };
 
