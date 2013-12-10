@@ -42,3 +42,7 @@ html, body {
 .btn:focus {
   outline: none;
 }
+
+.link {
+  cursor: pointer;
+}
