@@ -3,3 +3,5 @@ node_modules/
 npm-debug.log
 */config/runtime.json
 web/js/config.js
+production.json
+dump.rdb
