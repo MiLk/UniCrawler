@@ -25,6 +25,11 @@ function GlobalCtrl($scope) {
     $scope.sigInst.emptyGraph();
     $scope.sigInst.draw();
   };
+  
+  // Handle databox update
+  $scope.$on("databoxUpdate", function(event, data){
+    $scope.$broadcast("databoxUpdateChild", data);
+  });
 }
 
 // Crawl status
@@ -117,6 +122,14 @@ function ToolboxCtrl($scope) {
     }
     $scope.forceAtlas = !$scope.forceAtlas;
   };
+}
+
+// Databox control
+function DataboxCtrl($scope) {
+  // Handle databox update
+  $scope.$on("databoxUpdateChild", function(event, data){
+    $scope.data = data;
+  });
 }
 
 // Seeds
@@ -306,6 +319,19 @@ function SigmaCtrl($scope, $http, $timeout) {
     }).draw(2,2,2);
   });
 
+  // Show details on click  
+  $scope.$parent.sigInst.bind('upnodes', function(event) {
+    var node;
+    $scope.$parent.sigInst.iterNodes(function(n){
+      node = n;
+    }, [event.content[0]]);
+
+    $scope.$emit("databoxUpdate", {
+      label: node.label,
+      shortLabel: (node.label.length < 40) ? node.label : node.label.substr(0, 39) + "..."
+    });
+  });
+  
   $scope.lastDraw = 0;
   function redrawGraph(){
     if(Date.now() - $scope.lastDraw > 500){

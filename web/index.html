@@ -140,6 +140,12 @@
             </div><!-- end FilterCtrl-->
           </div><!-- end reglages -->
         </div><!-- end well -->
+        
+        <div class="well ng-cloak" ng-show="data" ng-controller="DataboxCtrl">
+          <span class="pull-right"><a ng-click="data=null" class="link"><i class="icon-remove"></i></a></span>
+          <h4>Infos</h4>
+          URL : <a href="{{ data.label }}" title="{{ data.label }}" target="_blank">{{ data.shortLabel }}</a>
+        </div><!-- end well -->
       </div><!-- end span4 -->
     </div><!-- end row-->
   </div> <!-- end container -->
