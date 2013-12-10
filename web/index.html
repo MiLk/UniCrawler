@@ -96,7 +96,7 @@
               <div class="control-group">
                 <label for="id_url" class="help-inline">Adresse</label>
                 <div class="input-append">
-                  <form ng-submit="addFilter('url')" data-toggle="popover" title="" data-trigger="hover" data-content="Seules les pages dont l'URL contient au moins un de ces mots-clés seront traitées" data-original-title="Filtrer les URL" data-placement="right">
+                  <form ng-submit="addFilter('url')" data-toggle="popover" title="" data-trigger="hover" data-content="Seules les pages dont l'URL contient au moins un de ces mots-clés seront traitées" data-original-title="Filtrer les URL" data-placement="right" data-container="body">
                     <input class="span3" id="id_url" type="text" ng-model="newFilterData.url">
                     <button class="btn" type="submit"><i class="icon-plus"></i></button>
                   </form>
@@ -111,7 +111,7 @@
               <div class="control-group">
                 <label for="id_title" class="help-inline">Titre</label>
                 <div class="input-append">
-                  <form ng-submit="addFilter('title')" data-toggle="popover" title="" data-trigger="hover" data-content="Seules les pages dont le titre contient au moins un de ces mots-clés seront traitées" data-original-title="Filtrer le titre" data-placement="right">
+                  <form ng-submit="addFilter('title')" data-toggle="popover" title="" data-trigger="hover" data-content="Seules les pages dont le titre contient au moins un de ces mots-clés seront traitées" data-original-title="Filtrer le titre" data-placement="right" data-container="body">
                     <input class="span3" id="id_title" type="text" ng-model="newFilterData.title">
                     <button class="btn" type="submit"><i class="icon-plus"></i></button>
                   </form>
@@ -126,7 +126,7 @@
               <div class="control-group">
                 <label for="id_body" class="help-inline">Contenu</label>
                 <div class="input-append">
-                  <form ng-submit="addFilter('body')" data-toggle="popover" title="" data-trigger="hover" data-content="Seules les pages dont le contenu contient au moins un de ces mots-clés seront traitées" data-original-title="Filtrer le contenu" data-placement="right">
+                  <form ng-submit="addFilter('body')" data-toggle="popover" title="" data-trigger="hover" data-content="Seules les pages dont le contenu contient au moins un de ces mots-clés seront traitées" data-original-title="Filtrer le contenu" data-placement="right" data-container="body">
                     <input class="span3" id="id_body" type="text" ng-model="newFilterData.body">
                     <button class="btn" type="submit"><i class="icon-plus"></i></button>
                   </form>
