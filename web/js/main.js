@@ -187,12 +187,19 @@ function DepthCtrl($scope, $http) {
   // Save
   $scope.DepthSet = function(){
     var postData = { depth: $scope.depth };
+    $scope.working = true;
     $http.post(api_url + '/depth', postData).success(function(data) {
       $scope.$parent.error = false;
       $scope.depth = postData.depth;
+      $scope.working = false;
+      $scope.done = true;
+      setTimeout(function(){$scope.done = false}, 1000);
     }).error(function(data, status){
       $scope.$parent.error = "Impossible de sauvegarder la profondeur";
       console.error(data);
+      $scope.working = false;
+      $scope.failed = true;
+      setTimeout(function(){$scope.failed = false}, 1000);
     });
   };
 }
