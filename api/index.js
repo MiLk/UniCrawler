@@ -62,6 +62,18 @@ swagger.addPost({
 });
 swagger.addPost({
   'spec': {
+    "description": "Pause the crawling process",
+    "summary": "Pause the crawling process",
+    "path": "/pause",
+    "method": "POST",
+    "params": [],
+    "errorResponses": [],
+    "nickname": "postPause"
+  },
+  'action': routes.postPause
+});
+swagger.addPost({
+  'spec': {
     "description": "Stop the crawling process",
     "summary": "Stop the crawling process",
     "path": "/stop",
