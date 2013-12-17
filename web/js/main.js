@@ -7,17 +7,7 @@ function GlobalCtrl($scope) {
 
   // Reset all the GUI
   $scope.resetApp = function(){
-    // TODO This doesn't work, we need to refresh or something
-    // use $scope.$broadcast() to dispatch the reset event to all child scopes
-    $scope.seeds = [];
-    $scope.working = 0;
-    $scope.visited = 0;
-    $scope.newSeed = '';
-    $scope.newFilterAddress = '';
-    $scope.newFilterTitle = '';
-    $scope.newFilterContent = '';
-    $scope.depth = '';
-    $scope.filters = [];
+    $scope.$broadcast("resetApp");
   };
 
   // Reset all the GUI
@@ -61,6 +51,16 @@ function StatusCtrl($scope, $http, $timeout, $compile) {
       console.error(data);
     });
   };
+  
+  // Pause button
+  $scope.pauseCrawl = function(index) {
+    $http.post(api_url + '/pause').success(function(data) {
+      $scope.$parent.error = false;
+    }).error(function(data, status){
+      $scope.$parent.error = "Impossible de mettre le crawl en pause";
+      console.error(data);
+    });
+  };
 
   // Stop button
   $scope.stopCrawl = function(index) {
@@ -71,35 +71,25 @@ function StatusCtrl($scope, $http, $timeout, $compile) {
       console.error(data);
     });
   };
-
-  // Reset button
-  $scope.popover = $('button[data-toggle=popover]').popover().on('shown', function(){
-    var popover = $(this).parent().parent().find('.popover .popover-content');
-    popover.html($compile(popover.html())($scope));
+  
+  // Handle app reset
+  $scope.$on("resetApp", function(event){
+    $scope.working = 0;
+    $scope.visited = 0;
   });
-  $('form[data-toggle=popover]').popover();
+}
 
-  $scope.resetCrawl = function(index) {
-    var type = -1;
-    if($scope.resetData && $scope.resetSettings) type = 0;
-    else if($scope.resetData && !$scope.resetSettings) type = 1;
-    else if(!$scope.resetData && $scope.resetSettings) type = 2;
-
-    if(type > -1){
-      $http.post(api_url + '/reset', { type: type }).success(function(data) {
-        if($scope.resetSettings){
-          $scope.$parent.resetApp();
-        }
-        if($scope.resetData){
-          $scope.$parent.resetData();
-        }
-        $scope.$parent.error = false;
-      }).error(function(data, status){
-        $scope.$parent.error = "Impossible de réinitialiser le crawl";
-        console.error(data);
-      });
-    }
-    $scope.popover.popover('hide');
+// Config tools controller
+function ConfigCtrl($scope, $http) {
+  // Reset button
+  $scope.resetConfig = function(index) {
+    $http.post(api_url + '/reset', { type: 2 }).success(function(data) {
+      $scope.$parent.resetApp();
+      $scope.$parent.error = false;
+    }).error(function(data, status){
+      $scope.$parent.error = "Impossible de réinitialiser la configuration";
+      console.error(data);
+    });
   };
 }
 
@@ -171,6 +161,12 @@ function SeedCtrl($scope, $http) {
       console.error(data);
     });
   };
+  
+  // Handle app reset
+  $scope.$on("resetApp", function(event){
+    $scope.seeds = [];
+    $scope.newSeed = '';
+  });
 }
 
 // Profondeur
@@ -202,6 +198,11 @@ function DepthCtrl($scope, $http) {
       setTimeout(function(){$scope.failed = false}, 1000);
     });
   };
+  
+  // Handle app reset
+  $scope.$on("resetApp", function(event){
+    $scope.depth = 1;
+  });
 }
 
 // Filters
@@ -247,6 +248,14 @@ function FilterCtrl($scope, $http) {
       console.error(data);
     });
   };
+  
+  // Handle app reset
+  $scope.$on("resetApp", function(event){
+    $scope.newFilterAddress = '';
+    $scope.newFilterTitle = '';
+    $scope.newFilterContent = '';
+    $scope.filters = [];
+  });
 }
 
 String.prototype.hashColor = function(){

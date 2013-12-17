@@ -41,11 +41,10 @@
               <button class="btn btn-success" ng-click="startCrawl()">
                 <i class="icon-play icon-white"></i> Start
               </button>
+              <button class="btn btn-warning" ng-click='pauseCrawl()'>
+                <i class="icon-pause icon-white"></i> Pause
               <button class="btn btn-danger" ng-click="stopCrawl()">
                 <i class="icon-stop icon-white"></i> Stop
-              </button>
-              <button class="btn btn-warning" data-toggle="popover" title="" data-html="true" data-content="<label>Effacer les données (nœuds, liens, mots-clés) <input type='checkbox' ng-model='resetData'></label><br><label>Effacer la configuration (seeds, filtres, profondeur...) <input type='checkbox' ng-model='resetSettings'></label><br><input type='button' class='btn' value='Effacer' ng-click='resetCrawl()'>" data-original-title="Réinitialiser" data-placement="bottom" data-container="div#status">
-                <i class="icon-trash icon-white"></i> Réinitialiser <b class="caret"></b>
               </button>
             </div>
             
@@ -138,6 +137,12 @@
                 </li>
               </ul>
             </div><!-- end FilterCtrl-->
+            
+            <div ng-controller="ConfigCtrl">
+              <button class="btn btn-primary btn-small" ng-click="resetConfig()">
+                <i class="icon-trash icon-white"></i> Réinitialiser la configuration
+              </button>
+            </div>
           </div><!-- end reglages -->
         </div><!-- end well -->
         
