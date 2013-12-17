@@ -64,11 +64,12 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
           events.emit('keywords_found', url, found_body_keyword);
         }
 
-        // Title filter
-        if(config.title.length > 0) {
-          var title = body.match(/<title>(.*)<\/title>/i);
-          if(title && title[1]) {
-            title = title[1];
+        var title = body.match(/<title>(.*)<\/title>/i);
+        if(title && title[1]) {
+          title = title[1];
+          events.emit('title', url, title);
+          // Title filter
+          if(config.title.length > 0) {
             // Get matching keyword
             var found_title_keyword = _.reduce(config.title, function(memo, keyword) {
               if(title.search(new RegExp(keyword,"i")) != -1) {
@@ -86,6 +87,9 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
           if(config.title.length > 0 && found_title_keyword && found_title_keyword.length > 0) {
             events.emit('keywords_found', url, found_title_keyword);
           }
+
+          // Extract meta
+          extractMeta(url, body);
 
           if(config.depth >= depth) {
             // Extract all the links from the body
@@ -154,6 +158,12 @@ var handleWebPage = function(error, response, body, options) { // Get the respon
       return callback();
     }
   }
+}
+
+function extractMeta(url, body) {
+  var description = body.match(/<meta name="description" content="(.*)"\s*\/?>/i);
+  if(description && description[1])
+    events.emit('description', url, description[1]);
 }
 
 // Scrapp a website
@@ -340,4 +350,12 @@ events.on('keywords_found', function(url, found_keyword) {
   found_keyword.forEach(function(keyword) {
     collections.addKeyword(url, keyword);
   });
+});
+
+events.on('title', function(url, title) {
+  collections.addTitle(url, title);
+});
+
+events.on('description', function(url, description) {
+  collections.addDescription(url, description);
 });
