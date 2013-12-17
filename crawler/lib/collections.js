@@ -53,4 +53,26 @@ collections.addKeyword = function(url, keyword) {
   });
 };
 
+collections.addTitle = function(url, title) {
+  if(!url || !title) return console.error('Please provide an url and a title.');
+  mongodb.db.collection('nodes').update({ _id: url }, {
+    "$set": {
+      title: title
+    }
+  }, { upsert: true }, function(err) {
+    if(err) console.error(err);
+  });
+};
+
+collections.addDescription = function(url, description) {
+  if(!url || !description) return console.error('Please provide an url and a description.');
+  mongodb.db.collection('nodes').update({ _id: url }, {
+    "$set": {
+      description: description
+    }
+  }, { upsert: true }, function(err) {
+    if(err) console.error(err);
+  });
+};
+
 module.exports = collections;
