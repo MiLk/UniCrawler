@@ -207,6 +207,18 @@ function DepthCtrl($scope, $http) {
 
 // Filters
 function FilterCtrl($scope, $http) {
+  $scope.working = {
+    url: false,
+    title: false,
+    body: false
+  };
+  
+  $scope.filters = {
+    url: [],
+    title: [],
+    body: []
+  };
+  
   // Get
   $http.get(api_url + '/filter').success(function(data) {
     $scope.$parent.error = false;
@@ -221,13 +233,16 @@ function FilterCtrl($scope, $http) {
     var val = $scope.newFilterData[target];
     if(!val) return;
     var postData = { keyword: val, target: target };
+    $scope.working[target] = true;
     $http.post(api_url + '/filter', postData).success(function(data) {
       $scope.$parent.error = false;
       $scope.filters[target].push(val);
       $scope.newFilterData[target] = "";
+      $scope.working[target] = false;
     }).error(function(data, status){
       $scope.$parent.error = "Impossible d'ajouter le " + target;
       console.error(data);
+      $scope.working[target] = false;
     });
   };
 

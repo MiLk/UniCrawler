@@ -97,7 +97,7 @@
                 <div class="input-append">
                   <form ng-submit="addFilter('url')" data-toggle="popover" title="" data-trigger="hover" data-content="Seules les pages dont l'URL contient au moins un de ces mots-clés seront traitées" data-original-title="Filtrer les URL" data-placement="right" data-container="body">
                     <input class="span3" id="id_url" type="text" ng-model="newFilterData.url">
-                    <button class="btn" type="submit"><i class="icon-plus"></i></button>
+                    <button class="btn" type="submit" ng-disabled="working['url']"><i ng-class="{'icon-plus': !working['url'], 'icon-refresh': working['url']}"></i></button>
                   </form>
                 </div>
               </div>
@@ -112,7 +112,7 @@
                 <div class="input-append">
                   <form ng-submit="addFilter('title')" data-toggle="popover" title="" data-trigger="hover" data-content="Seules les pages dont le titre contient au moins un de ces mots-clés seront traitées" data-original-title="Filtrer le titre" data-placement="right" data-container="body">
                     <input class="span3" id="id_title" type="text" ng-model="newFilterData.title">
-                    <button class="btn" type="submit"><i class="icon-plus"></i></button>
+                    <button class="btn" type="submit" ng-disabled="working['title']"><i ng-class="{'icon-plus': !working['title'], 'icon-refresh': working['title']}"></i></button>
                   </form>
                 </div>
               </div>
@@ -127,7 +127,7 @@
                 <div class="input-append">
                   <form ng-submit="addFilter('body')" data-toggle="popover" title="" data-trigger="hover" data-content="Seules les pages dont le contenu contient au moins un de ces mots-clés seront traitées" data-original-title="Filtrer le contenu" data-placement="right" data-container="body">
                     <input class="span3" id="id_body" type="text" ng-model="newFilterData.body">
-                    <button class="btn" type="submit"><i class="icon-plus"></i></button>
+                    <button class="btn" type="submit" ng-disabled="working['body']"><i ng-class="{'icon-plus': !working['body'], 'icon-refresh': working['body']}"></i></button>
                   </form>
                 </div>
               </div>
