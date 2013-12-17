@@ -295,10 +295,7 @@ events.on('start', function() {
 
 events.on('stop', function() {
   is_running = false;
-  client.del('working', function(err) {
-    if(err) util.error('Stop: ' +err);
-    util.log('Stop crawling');
-  });
+  util.log('Stop crawling');
 });
 
 /*

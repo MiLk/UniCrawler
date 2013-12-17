@@ -25,9 +25,24 @@ function postStart(req, res, next) {
   res.send(200, {});
 }
 
-function postStop(req, res, next) {
+function postPause(req, res, next) {
   client.publish('actions','stop');
   res.send(200, {});
+}
+
+function postStop(req, res, next) {
+  client.publish('actions','stop');
+  var Multi = client.multi();
+  Multi
+    .del('working')
+    .del('encoded_url')
+    .del('visited')
+  ;
+  collections.dropNodes();
+  Multi.exec(function(err, replies) {
+    if(err) return next(err);
+    res.send(200, {});
+  });
 }
 
 function postReset(req, res, next) {
@@ -337,6 +352,7 @@ function getKeywordsGdf(req, res, next) {
 module.exports = {
   getState: getState,
   postStart: postStart,
+  postPause: postPause,
   postStop: postStop,
   postReset: postReset,
   getSeed: getSeed,
