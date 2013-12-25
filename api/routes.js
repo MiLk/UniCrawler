@@ -36,8 +36,6 @@ function postStop(req, res, next) {
   var Multi = client.multi();
   Multi
     .del('working')
-    .del('encoded_url')
-    .del('visited')
   ;
   Multi.exec(function(err, replies) {
     if(err) return next(err);
