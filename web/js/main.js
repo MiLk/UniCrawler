@@ -44,7 +44,36 @@ function StatusCtrl($scope, $http, $timeout, $compile) {
   })();
 
   // Start button
-  $scope.startCrawl = function(index) {
+  $scope.startCrawl = function() {
+    if($scope.crawlStatus == 0){
+      $scope.popover.popover('show');
+    }
+    else {
+      $scope.doStartCrawl();
+    }
+  };
+
+  // Clear data then start crawl
+  $scope.clearAndStartCrawl = function(){
+    // Close popover
+    $scope.popover.popover('hide');
+
+    // Drop all data
+    $http.post(api_url + '/reset', { type: 1 }).success(function(data) {
+      // Clear sigmajs
+      $scope.$parent.sigInst.emptyGraph();
+      $scope.$parent.sigInst.draw();
+      
+      $scope.$parent.error = false;
+      $scope.doStartCrawl();
+    }).error(function(data, status){
+      $scope.$parent.error = "Impossible de supprimer les données existantes";
+      console.error(data);
+    });
+  };
+  
+  // Start the crawl
+  $scope.doStartCrawl = function(){
     $scope.crawlStatus = 1;
     $http.post(api_url + '/start').success(function(data) {
       $scope.$parent.error = false;
@@ -52,6 +81,11 @@ function StatusCtrl($scope, $http, $timeout, $compile) {
       $scope.$parent.error = "Impossible de démarrer le crawl";
       console.error(data);
     });
+  };
+
+  // Just close the popover
+  $scope.doNotStartCrawl = function(){
+    $scope.popover.popover('hide');
   };
   
   // Pause button
@@ -84,6 +118,12 @@ function StatusCtrl($scope, $http, $timeout, $compile) {
   
   // The crawl status: 0=stop, 1=play, 2=pause
   $scope.crawlStatus = 0;
+  
+  // Popover to confirm clear on start
+  $scope.popover = $('button[data-toggle=popover]').popover().on('shown', function(){
+    var popover = $('body').find('.popover .popover-content');
+    popover.html($compile(popover.html())($scope));
+  });
 }
 
 // Config tools controller
