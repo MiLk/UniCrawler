@@ -46,13 +46,13 @@
             </div>
             
             <div class="btn-group">
-              <button id="startbutton" class="btn btn-success" ng-click="startCrawl()" ng-disabled="crawlStatus == 1" data-toggle="popover" data-trigger="manual" data-html="true" data-content="<b>Attention</b> : commencer un nouveau crawl effacera toutes les données<br><br><input type='button' class='btn btn-danger' value='Effacer' ng-click='clearAndStartCrawl()'><input type='button' class='btn pull-right' value='Annuler' ng-click='doNotStartCrawl()'>" data-original-title="Démarrer un nouveau crawl ?" data-placement="right" data-container="body">
+              <button id="startbutton" class="btn btn-success" ng-click="startCrawl()" ng-disabled="crawlStatus == 1 && false" data-toggle="popover" data-trigger="manual" data-html="true" data-content="<b>Attention</b> : commencer un nouveau crawl effacera toutes les données<br><br><input type='button' class='btn btn-danger' value='Effacer' ng-click='clearAndStartCrawl()'><input type='button' class='btn pull-right' value='Annuler' ng-click='doNotStartCrawl()'>" data-original-title="Démarrer un nouveau crawl ?" data-placement="right" data-container="body">
                 <i class="icon-play icon-white"></i> Démarrer
               </button>
-              <button class="btn btn-warning" ng-click='pauseCrawl()' ng-disabled="crawlStatus != 1">
+              <button class="btn btn-warning" ng-click='pauseCrawl()' ng-disabled="crawlStatus != 1 && false">
                 <i class="icon-pause icon-white"></i> Pause
               </button>
-              <button class="btn btn-danger" ng-click="stopCrawl()" ng-disabled="crawlStatus == 0">
+              <button class="btn btn-danger" ng-click="stopCrawl()" ng-disabled="crawlStatus == 0 && false">
                 <i class="icon-stop icon-white"></i> Arrêter
               </button>
             </div>
