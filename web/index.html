@@ -37,18 +37,7 @@
       <div class="span5">
         <div class="well">
           <div ng-controller="StatusCtrl" id="status">
-            <div class="btn-group">
-              <button class="btn btn-success" ng-click="startCrawl()">
-                <i class="icon-play icon-white"></i> Start
-              </button>
-              <button class="btn btn-warning" ng-click='pauseCrawl()'>
-                <i class="icon-pause icon-white"></i> Pause
-              <button class="btn btn-danger" ng-click="stopCrawl()">
-                <i class="icon-stop icon-white"></i> Stop
-              </button>
-            </div>
-            
-            <h4>État du serveur</h4>
+            <h4>État du crawl</h4>
             
             <div class="ng-cloak" ng-show="error">
               <div class="alert alert-error">
@@ -56,8 +45,22 @@
               </div>
             </div>
             
-            Nœuds correspondants trouvés : <span class="ng-cloak">{{ visited }}</span><br />
-            Nœuds à explorer : <span class="ng-cloak">{{ working }}</span>
+            <div class="btn-group">
+              <button class="btn btn-success" ng-click="startCrawl()" ng-disabled="crawlStatus == 1">
+                <i class="icon-play icon-white"></i> Start
+              </button>
+              <button class="btn btn-warning" ng-click='pauseCrawl()' ng-disabled="crawlStatus != 1">
+                <i class="icon-pause icon-white"></i> Pause
+              </button>
+              <button class="btn btn-danger" ng-click="stopCrawl()" ng-disabled="crawlStatus == 0">
+                <i class="icon-stop icon-white"></i> Stop
+              </button>
+            </div>
+            
+            <div>
+              Nœuds correspondants trouvés : <span class="ng-cloak">{{ visited }}</span><br />
+              Nœuds à explorer : <span class="ng-cloak">{{ working }}</span>
+            </div>
           </div>
 
           <div>

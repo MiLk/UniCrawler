@@ -33,6 +33,7 @@ function StatusCtrl($scope, $http, $timeout, $compile) {
       $scope.$parent.error = false;
       $scope.working = data.working;
       $scope.visited = data.visited;
+      // TODO Update $scope.crawlStatus
       $timeout(poll, $scope.retry);
     }).error(function(data, status){
       $scope.$parent.error = "Impossible de récupérer l'état";
@@ -44,6 +45,7 @@ function StatusCtrl($scope, $http, $timeout, $compile) {
 
   // Start button
   $scope.startCrawl = function(index) {
+    $scope.crawlStatus = 1;
     $http.post(api_url + '/start').success(function(data) {
       $scope.$parent.error = false;
     }).error(function(data, status){
@@ -54,6 +56,7 @@ function StatusCtrl($scope, $http, $timeout, $compile) {
   
   // Pause button
   $scope.pauseCrawl = function(index) {
+    $scope.crawlStatus = 2;
     $http.post(api_url + '/pause').success(function(data) {
       $scope.$parent.error = false;
     }).error(function(data, status){
@@ -64,6 +67,7 @@ function StatusCtrl($scope, $http, $timeout, $compile) {
 
   // Stop button
   $scope.stopCrawl = function(index) {
+    $scope.crawlStatus = 0;
     $http.post(api_url + '/stop').success(function(data) {
       $scope.$parent.error = false;
     }).error(function(data, status){
@@ -77,6 +81,9 @@ function StatusCtrl($scope, $http, $timeout, $compile) {
     $scope.working = 0;
     $scope.visited = 0;
   });
+  
+  // The crawl status: 0=stop, 1=play, 2=pause
+  $scope.crawlStatus = 0;
 }
 
 // Config tools controller
