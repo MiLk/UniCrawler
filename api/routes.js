@@ -18,6 +18,7 @@ function getState(req, res, next) {
       if(err) return next(err);
       res.send(200, {working: (replies[0]/2), visited: replies[1]});
     });
+    // TODO Return crawl status - see #20
 }
 
 function postStart(req, res, next) {
@@ -38,7 +39,6 @@ function postStop(req, res, next) {
     .del('encoded_url')
     .del('visited')
   ;
-  collections.dropNodes();
   Multi.exec(function(err, replies) {
     if(err) return next(err);
     res.send(200, {});
