@@ -411,10 +411,18 @@ function SigmaCtrl($scope, $http, $timeout) {
   });
   
   $scope.lastDraw = 0;
+  $scope.timerSetDraw = false;
   function redrawGraph(){
     if(Date.now() - $scope.lastDraw > 500){
       $scope.$parent.sigInst.draw();
       $scope.lastDraw = Date.now();
+    }
+    else if(!$scope.timerSetDraw){
+      $scope.timerSetDraw = true;
+      setTimeout(function(){
+        redrawGraph();
+        $scope.timerSetDraw = false;
+      }, 550);
     }
   }
   
