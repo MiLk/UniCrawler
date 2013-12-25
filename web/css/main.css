@@ -58,3 +58,11 @@ html, body {
 	from { transform: scale( 1 ) rotate( 0deg );   }
 	to   { transform: scale( 1 ) rotate( 360deg ); }
 }
+
+.form-horizontal .control-label {
+  width: 60px;
+}
+
+.form-horizontal .controls {
+  margin-left: 80px;
+}
