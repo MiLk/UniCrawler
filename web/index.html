@@ -43,7 +43,7 @@
               </div>
             </div>
             
-            <div class="btn-group">
+            <p class="btn-group">
               <button id="startbutton" class="btn btn-success" ng-click="startCrawl()" ng-disabled="crawlStatus == 1 && false" data-toggle="popover" data-trigger="manual" data-html="true" data-content="<b>Attention</b> : commencer un nouveau crawl effacera toutes les données<br><br><input type='button' class='btn btn-danger' value='Effacer' ng-click='clearAndStartCrawl()'><input type='button' class='btn pull-right' value='Annuler' ng-click='doNotStartCrawl()'>" data-original-title="Démarrer un nouveau crawl ?" data-placement="right" data-container="body">
                 <i class="icon-play icon-white"></i> Démarrer
               </button>
@@ -53,7 +53,7 @@
               <button class="btn btn-danger" ng-click="stopCrawl()" ng-disabled="crawlStatus == 0 && false">
                 <i class="icon-stop icon-white"></i> Arrêter
               </button>
-            </div>
+            </p>
             
             <div class="dropdown pull-right" id="drop-connexion">
               <a href="#drop-connexion" class="dropdown-toggle btn btn-primary" data-toggle="dropdown">
@@ -66,10 +66,10 @@
               </ul>
             </div>
                       
-            <div>
+            <p>
               Nœuds correspondants trouvés : <span class="ng-cloak">{{ visited }}</span><br />
               Nœuds à explorer : <span class="ng-cloak">{{ working }}</span>
-            </div>
+            </p>
           </div>
 
           <div>
