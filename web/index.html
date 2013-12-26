@@ -33,7 +33,7 @@
   </div>
 
   <div class="container-fluid">
-    <div class="row" id="controlbox">
+    <div class="row" id="controlbox" ng-mouseleave="reglages=false">
       <div class="span5">
         <div class="well">
           <div ng-controller="StatusCtrl" id="status">
@@ -71,31 +71,32 @@
               Nœuds à explorer : <span class="ng-cloak">{{ working }}</span>
             </p>
           </div>
-
-          <div>
-            <i class="icon-chevron-right" ng-show="!reglages"></i>
-            <i class="icon-chevron-down ng-cloak" ng-show="reglages"></i>
-            <a href="#" ng-click="reglages=!reglages">Réglages</a>
+          
+          <div ng-show="!reglages" class="text-center">
+            <a href="" class="btn btn-small" ng-click="reglages=true"><i class="icon-wrench"></i> <b class="caret"></b></a>
           </div>
-          <div ng-show="reglages" ng-init="reglages=false" class="ng-cloak">            
-            <div ng-controller="SeedCtrl">
-              <form ng-submit="addSeed()" class="form-horizontal">
-                <label for="id_seeds" class="control-label">Seeds</label>
-                <div class="controls">
-                  <div class="input-append">
-                    <input type="text" id="id_seeds" class="span3" ng-model="newSeed" placeholder="http://www.example.com">
-                    <button class="btn" type="submit"><i class="icon-plus"></i></button>
+
+          <div ng-show="reglages" ng-init="reglages=false" class="ng-cloak">
+            <fieldset>
+              <legend>Réglages</legend>              
+              <div ng-controller="SeedCtrl">
+                <form ng-submit="addSeed()" class="form-horizontal">
+                  <label for="id_seeds" class="control-label">Seeds</label>
+                  <div class="controls">
+                    <div class="input-append">
+                      <input type="text" id="id_seeds" class="span3" ng-model="newSeed" placeholder="http://www.example.com">
+                      <button class="btn" type="submit"><i class="icon-plus"></i></button>
+                    </div>
                   </div>
-                </div>
-              </form>
-              <ul id="seed-list" class="ng-cloak">
-                <li ng-repeat="seed in seeds">
-                  {{ seed }} <a ng-click="deleteSeed($index)" href=""><i class="icon-remove"></i></a>
-                </li>
-              </ul>
-            </div>
-            <div ng-controller="DepthCtrl">
-              <form ng-submit="DepthSet()" class="form-horizontal">
+                </form>
+                <ul id="seed-list" class="ng-cloak">
+                  <li ng-repeat="seed in seeds">
+                    {{ seed }} <a ng-click="deleteSeed($index)" href=""><i class="icon-remove"></i></a>
+                  </li>
+                </ul>
+              </div>
+              <div ng-controller="DepthCtrl">
+                <form ng-submit="DepthSet()" class="form-horizontal">
                   <label for="id_depth" class="control-label">Profondeur</label>
                   <div class="controls">
                     <div class="input-append">
@@ -104,10 +105,11 @@
                     </div>
                   </div>
                 </form>
-            </div>
+              </div>
+            </fieldset>
 
-            <div ng-controller="FilterCtrl">
-              <h4>Filtres</h4>
+            <fieldset ng-controller="FilterCtrl">
+              <legend>Filtres</legend>
               <form ng-submit="addFilter('url')" data-toggle="popover" title="" data-trigger="hover" data-content="Seules les pages dont l'URL contient au moins un de ces mots-clés seront traitées" data-original-title="Filtrer les URL" data-placement="right" data-container="body" class="form-horizontal">
                 <label for="id_url" class="control-label">Adresse</label>
                 
@@ -157,7 +159,7 @@
                 </li>
               </ul>
 
-            </div><!-- end FilterCtrl-->
+            </fieldset><!-- end FilterCtrl-->
             
             <div ng-controller="ConfigCtrl">
               <button class="btn btn-primary btn-small" ng-click="resetConfig()">
