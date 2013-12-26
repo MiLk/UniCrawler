@@ -55,6 +55,17 @@
               </button>
             </div>
             
+            <div class="dropdown pull-right" id="drop-connexion">
+              <a href="#drop-connexion" class="dropdown-toggle btn btn-primary" data-toggle="dropdown">
+                <i class="icon-download-alt icon-white"></i>
+                <b class="caret"></b>
+              </a>
+              <ul class="dropdown-menu">
+                <li><a href="{{apiUrl}}/results.gdf">Graphe par pages <small>(.gdf)</small></a></li>
+                <li><a href="{{apiUrl}}/keywords.gdf">Graphe par mots-clés <small>(.gdf)</small></a></li>
+              </ul>
+            </div>
+                      
             <div>
               Nœuds correspondants trouvés : <span class="ng-cloak">{{ visited }}</span><br />
               Nœuds à explorer : <span class="ng-cloak">{{ working }}</span>

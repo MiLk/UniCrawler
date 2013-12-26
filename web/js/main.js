@@ -124,6 +124,9 @@ function StatusCtrl($scope, $http, $timeout, $compile) {
     var popover = $('body').find('.popover .popover-content');
     popover.html($compile(popover.html())($scope));
   });
+  
+  // API url used in download links
+  $scope.apiUrl = api_url;
 }
 
 // Config tools controller
