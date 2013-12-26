@@ -66,3 +66,7 @@ html, body {
 .form-horizontal .controls {
   margin-left: 80px;
 }
+
+.popover {
+  z-index: 15000;
+}
