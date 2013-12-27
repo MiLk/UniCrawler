@@ -257,12 +257,6 @@ function DepthCtrl($scope, $http) {
 
 // Filters
 function FilterCtrl($scope, $http) {
-  $scope.working = {
-    url: false,
-    title: false,
-    body: false
-  };
-  
   $scope.filters = {
     url: [],
     title: [],
@@ -280,26 +274,42 @@ function FilterCtrl($scope, $http) {
 
   // Add
   $scope.addFilter = function(target) {
-    var val = $scope.newFilterData[target];
-    if(!val) return;
-    var postData = { keyword: val, target: target };
-    $scope.working[target] = true;
-    $http.post(api_url + '/filter', postData).success(function(data) {
-      $scope.$parent.error = false;
-      $scope.filters[target].push(val);
-      $scope.newFilterData[target] = "";
-      $scope.working[target] = false;
-    }).error(function(data, status){
-      $scope.$parent.error = "Impossible d'ajouter le " + target;
-      console.error(data);
-      $scope.working[target] = false;
-    });
+    if(!$scope.newFilterData[target]) return;
+    var keywords = $scope.newFilterData[target].split(',');
+    for(var index in keywords) {
+      var val = keywords[index].trim();
+      var postData = { keyword: val, target: target };
+      $scope.newFilterQueries[target]++;
+      $http.post(api_url + '/filter', postData).success(function(val){
+        return function(data) {
+          $scope.newFilterQueries[target]--;
+          $scope.filters[target].push(val);
+
+          if($scope.newFilterQueries[target] == 0){
+            $scope.$parent.error = false;
+            $scope.newFilterData[target] = "";          
+          }
+        }
+      }(val)).error(function(data, status){
+        $scope.newFilterQueries[target]--;
+        $scope.$parent.error = "Impossible d'ajouter le " + target;
+        console.error(data);
+      });
+    }
   };
 
+  // Inputs for filters
   $scope.newFilterData = {
     url: "",
     title: "",
     body: ""
+  };
+  
+  // Number of active queries for each filter
+  $scope.newFilterQueries = {
+    url: 0,
+    title: 0,
+    body: 0
   };
 
   // Delete

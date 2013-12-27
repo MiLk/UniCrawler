@@ -116,7 +116,7 @@
                 <div class="controls">
                   <div class="input-append">
                     <input class="span3" id="id_url" type="text" ng-model="newFilterData.url">
-                    <button class="btn" type="submit" ng-disabled="working['url']"><i ng-class="{'icon-plus': !working['url'], 'icon-refresh': working['url']}"></i></button>
+                    <button class="btn" type="submit" ng-disabled="newFilterQueries['url']"><i ng-class="{'icon-plus': !newFilterQueries['url'], 'icon-refresh': newFilterQueries['url']}"></i></button>
                   </div>
                 </div>
               </form>
@@ -132,7 +132,7 @@
                 <div class="controls">
                   <div class="input-append">
                     <input class="span3" id="id_title" type="text" ng-model="newFilterData.title">
-                    <button class="btn" type="submit" ng-disabled="working['title']"><i ng-class="{'icon-plus': !working['title'], 'icon-refresh': working['title']}"></i></button>
+                    <button class="btn" type="submit" ng-disabled="newFilterQueries['title']"><i ng-class="{'icon-plus': !newFilterQueries['title'], 'icon-refresh': newFilterQueries['title']}"></i></button>
                   </div>
                 </div>
               </form>
@@ -148,7 +148,7 @@
                 <div class="controls">
                   <div class="input-append">
                     <input class="span3" id="id_body" type="text" ng-model="newFilterData.body">
-                    <button class="btn" type="submit" ng-disabled="working['body']"><i ng-class="{'icon-plus': !working['body'], 'icon-refresh': working['body']}"></i></button>
+                    <button class="btn" type="submit" ng-disabled="newFilterQueries['body']"><i ng-class="{'icon-plus': !newFilterQueries['body'], 'icon-refresh': newFilterQueries['body']}"></i></button>
                   </div>
                 </div>
               </form>
